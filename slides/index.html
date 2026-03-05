@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python per Excel – Turin Wealth Advisory</title>
+
+  <!-- Reveal.js core CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css" />
+  <!-- Syntax highlighting -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.css" />
+  <!-- Custom Turin Wealth theme -->
+  <link rel="stylesheet" href="css/turin-wealth-theme.css" />
+
+  <style>
+    /* Minor presentation-level overrides */
+    .reveal .slides { text-align: left; }
+    .reveal .slides section.center-slide { text-align: center; }
+    .two-col code, .two-col pre { font-size: 0.85em; }
+  </style>
+</head>
+<body>
+
+<div class="reveal">
+  <div class="slides">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         BLOCCO 1: APERTURA  (slides 1–3)
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- SLIDE 1 ─ Title -->
+    <section class="center-slide">
+      <div class="title-slide-main">
+        <div class="company-badge">Turin Wealth Advisory</div>
+        <h1>Python per Excel</h1>
+        <p class="subtitle">Dal Web al Report Professionale</p>
+        <p class="meta">Lezione pratica &nbsp;·&nbsp; 6 ore &nbsp;·&nbsp; Facoltà di Economia – Torino</p>
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.15);margin:1.2em auto;width:60%;" />
+        <p style="font-size:0.6em;color:#7f8c8d;">yfinance &nbsp;+&nbsp; pandas &nbsp;+&nbsp; xlwings</p>
+      </div>
+      <aside class="notes">
+        Benvenuti! Questa lezione pratica copre l'intera pipeline: dal download automatico
+        di dati finanziari da internet fino alla generazione di un report Excel professionale
+        con grafici, formule e protezione. Niente copia-incolla manuale.
+      </aside>
+    </section>
+
+    <!-- SLIDE 2 ─ Il problema -->
+    <section>
+      <h2>Perche Python?</h2>
+      <p style="color:#bdc3c7;font-size:0.75em;margin-bottom:0.8em;">Il problema che risolviamo oggi</p>
+      <ul>
+        <li>Copiare prezzi a mano da Yahoo Finance &rarr; <strong>errori garantiti</strong></li>
+        <li>Ogni report ha formattazione diversa &rarr; <strong>nessuna coerenza</strong></li>
+        <li>Preparare il report trimestrale: <strong>45 minuti</strong> vs <strong>5 secondi</strong></li>
+        <li>File Excel manuale &rarr; <strong>non riproducibile</strong>, non verificabile</li>
+        <li>Aggiornare 50 ETF ogni settimana &rarr; <strong>compito impossibile a mano</strong></li>
+      </ul>
+      <div class="tip" style="margin-top:0.8em;">
+        Con tre librerie Python eliminiamo tutti questi problemi. Vediamo come.
+      </div>
+      <aside class="notes">
+        Chiedere agli studenti: "Chi di voi ha perso tempo a copiare dati da un sito in Excel?"
+        Sottolineare che il problema non è Excel in sé, ma il processo manuale.
+      </aside>
+    </section>
+
+    <!-- SLIDE 3 ─ Obiettivo della giornata -->
+    <section>
+      <h2>Cosa imparerete oggi</h2>
+      <div class="kpi-row" style="margin-top:0.8em;">
+        <div class="kpi">
+          <span class="kpi-value">1</span>
+          <span class="kpi-label">yfinance + pandas</span>
+          <p style="font-size:0.5em;color:#ecf0f1;margin-top:0.5em;">
+            Download automatico prezzi<br/>Calcolo rendimenti e rischio
+          </p>
+        </div>
+        <div class="kpi">
+          <span class="kpi-value">2</span>
+          <span class="kpi-label">xlwings</span>
+          <p style="font-size:0.5em;color:#ecf0f1;margin-top:0.5em;">
+            Scrivere in Excel da Python<br/>Formattazione professionale
+          </p>
+        </div>
+        <div class="kpi">
+          <span class="kpi-value">3</span>
+          <span class="kpi-label">Pipeline completa</span>
+          <p style="font-size:0.5em;color:#ecf0f1;margin-top:0.5em;">
+            Un click &rarr; report PDF<br/>End-to-end automation
+          </p>
+        </div>
+      </div>
+      <div class="steps" style="margin-top:1em;">
+        <div class="step"><span class="step-num">⬇</span>Scarica</div>
+        <div class="step-arrow">→</div>
+        <div class="step"><span class="step-num">📊</span>Analizza</div>
+        <div class="step-arrow">→</div>
+        <div class="step"><span class="step-num">📋</span>Excel</div>
+        <div class="step-arrow">→</div>
+        <div class="step"><span class="step-num">📄</span>PDF</div>
+      </div>
+      <aside class="notes">
+        Il filo conduttore è il portafoglio della Famiglia Bianchi: scaricheremo i prezzi
+        storici delle azioni che abbiamo analizzato nei moduli Excel (Ferrari, Microsoft, ecc.)
+        e costruiremo un report identico a quello che farebbe un advisor professionista.
+      </aside>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         BLOCCO 2: yfinance + pandas  (slides 4–15)
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- SLIDE 4 ─ yfinance intro -->
+    <section>
+      <div class="section-badge">Blocco 1</div>
+      <h2>yfinance – Dati di mercato gratis</h2>
+      <div class="two-col">
+        <div>
+          <h3>Cos'e?</h3>
+          <ul>
+            <li>Libreria Python che scarica dati da <strong>Yahoo Finance</strong></li>
+            <li>Prezzi storici OHLCV, dividendi, split</li>
+            <li>Ticker globali: azioni, ETF, indici, crypto</li>
+            <li>Gratuita, nessuna API key</li>
+          </ul>
+          <div class="exercise" style="margin-top:0.8em;">
+            <code>pip install yfinance pandas xlwings</code>
+          </div>
+        </div>
+        <div>
+          <h3>Esempio minimo</h3>
+          <pre><code class="python">import yfinance as yf
+
+# Scarica 5 anni di Ferrari
+df = yf.download("RACE.MI", period="5y")
+
+print(df.head())
+print(f"Righe: {len(df)}")
+</code></pre>
+        </div>
+      </div>
+      <aside class="notes">
+        yfinance è il modo più semplice per ottenere dati finanziari reali.
+        Non serve account Yahoo né API key. La libreria wrappa le chiamate non ufficiali
+        all'API di Yahoo Finance.
+      </aside>
+    </section>
+
+    <!-- SLIDE 5 ─ ES01: Il primo ticker -->
+    <section>
+      <h2>ES01 &ndash; Il primo ticker</h2>
+      <div class="exercise">Scarica 5 anni di Terna (TRN.MI) e stampa le ultime 5 righe</div>
+      <pre><code class="python">import yfinance as yf
+import pandas as pd
+
+# Download dati storici
+df = yf.download("TRN.MI", period="5y", progress=False)
+
+print(df.tail())
+print(f"\nShape: {df.shape}")
+print(f"Periodo: {df.index[0].date()} → {df.index[-1].date()}")
+</code></pre>
+      <p style="font-size:0.7em;color:#bdc3c7;margin-top:0.4em;">Output atteso (struttura):</p>
+      <pre><code class="python">                 Open       High        Low      Close  Adj Close    Volume
+Date
+2024-03-01  7.310000  7.390000  7.295000  7.360000   7.295600  2341200
+2024-03-04  7.370000  7.420000  7.340000  7.395000   7.330300  1987400
+...
+
+Shape: (1258, 6)
+Periodo: 2019-03-01 → 2024-03-01
+</code></pre>
+      <aside class="notes">
+        Fare eseguire agli studenti il codice in Jupyter o VS Code.
+        Spiegare il significato di ogni colonna: Open, High, Low, Close, Adj Close, Volume.
+        Adj Close tiene conto di dividendi e split: usare sempre Adj Close per calcoli di rendimento.
+      </aside>
+    </section>
+
+    <!-- SLIDE 6 ─ Anatomia del DataFrame -->
+    <section>
+      <h2>Anatomia del DataFrame</h2>
+      <div class="two-col-wide">
+        <div>
+          <h3>Struttura</h3>
+          <ul>
+            <li><strong>Index</strong> &rarr; DatetimeIndex (date di borsa)</li>
+            <li><strong>Columns</strong> &rarr; Open, High, Low, Close, Adj Close, Volume</li>
+            <li><strong>Shape</strong> &rarr; (righe, colonne) = (~1258, 6)</li>
+            <li><strong>dtype</strong> &rarr; float64 prezzi, int64 volume</li>
+          </ul>
+          <pre><code class="python">df.dtypes
+df.shape
+df.index          # DatetimeIndex
+df['Close']       # Series, una colonna
+df[['Close','Volume']]  # DataFrame
+</code></pre>
+        </div>
+        <div>
+          <h3>Metodi utili</h3>
+          <pre><code class="python">df.head(3)      # prime 3 righe
+df.tail(5)      # ultime 5 righe
+df.info()       # tipi e null
+df.describe()   # statistiche
+df.isnull().sum()  # valori mancanti
+df.index[0]     # prima data
+df.index[-1]    # ultima data
+</code></pre>
+        </div>
+      </div>
+      <aside class="notes">
+        Il DataFrame è la struttura dati centrale di pandas: immaginatelo come un foglio Excel
+        in memoria. Ogni riga è una data, ogni colonna è un campo OHLCV.
+      </aside>
+    </section>
+
+    <!-- SLIDE 7 ─ ES02: Più ticker -->
+    <section>
+      <h2>ES02 &ndash; Portafoglio a 5 titoli</h2>
+      <div class="exercise">Scarica tutti e 5 i titoli del portafoglio Bianchi</div>
+      <pre><code class="python">import yfinance as yf
+
+TICKERS = ["TRN.MI", "RACE.MI", "MSFT", "GOOGL", "MC.PA"]
+
+# Download multiplo — restituisce MultiIndex columns
+raw = yf.download(TICKERS, period="5y", progress=False)
+
+# Estrai solo i prezzi di chiusura aggiustati
+prezzi = raw["Adj Close"]
+prezzi.columns = ["Terna", "Ferrari", "Microsoft", "Alphabet", "LVMH"]
+
+print(prezzi.tail())
+print(f"\nValori mancanti:\n{prezzi.isnull().sum()}")
+</code></pre>
+      <div class="tip">
+        <code>raw["Adj Close"]</code> estrae un sub-DataFrame con solo le chiusure aggiustate.
+        Rinominare le colonne subito rende il codice leggibile.
+      </div>
+      <aside class="notes">
+        Download multiplo è più efficiente: un'unica chiamata HTTP invece di cinque.
+        Il MultiIndex columns ha due livelli: (campo, ticker). .xs() o [] permettono di estrarre un livello.
+      </aside>
+    </section>
+
+    <!-- SLIDE 8 ─ pandas power -->
+    <section class="compact">
+      <h2>pandas &ndash; Cheat rapido</h2>
+      <div class="two-col">
+        <div>
+          <h3>Ispezione</h3>
+          <pre><code class="python">prezzi.head()       # top 5
+prezzi.tail()       # bottom 5
+prezzi.describe()   # stats
+prezzi.info()       # dtypes + null
+prezzi.shape        # (rows, cols)
+prezzi.columns      # nomi colonne
+prezzi.index        # DatetimeIndex
+</code></pre>
+        </div>
+        <div>
+          <h3>Selezione e filtro</h3>
+          <pre><code class="python"># Una colonna (Series)
+prezzi["Ferrari"]
+
+# Piu colonne
+prezzi[["Ferrari", "LVMH"]]
+
+# Filtro per data
+prezzi["2023-01-01":"2024-01-01"]
+
+# Riga specifica
+prezzi.loc["2023-06-15"]
+
+# Ultima riga
+prezzi.iloc[-1]
+</code></pre>
+        </div>
+      </div>
+      <aside class="notes">
+        Questi metodi coprono il 90% dell'uso quotidiano. Spiegare la differenza tra
+        .loc (label-based) e .iloc (integer-based). Mostrare in live coding se possibile.
+      </aside>
+    </section>
+
+    <!-- SLIDE 9 ─ ES03: Benchmark -->
+    <section class="compact">
+      <h2>ES03 &ndash; Confronto col Benchmark</h2>
+      <div class="exercise">Aggiungi MSCI World e FTSE MIB come benchmark</div>
+      <pre><code class="python">import pandas as pd
+
+BENCHMARK = {
+    "MSCI_World": "IWDA.AS",   # iShares MSCI World ETF
+    "FTSE_MIB":   "FTSEMIB.MI" # ETF su indice italiano
+}
+
+# Download benchmark
+bench_raw = yf.download(
+    list(BENCHMARK.values()), period="5y", progress=False
+)
+bench = bench_raw["Adj Close"]
+bench.columns = list(BENCHMARK.keys())
+
+# Unisci con il portafoglio
+tutto = pd.concat([prezzi, bench], axis=1)
+
+# Allinea le date (dropna rimuove gg in cui manca almeno un valore)
+tutto.dropna(inplace=True)
+print(f"Date comuni: {len(tutto)}")
+</code></pre>
+      <aside class="notes">
+        pd.concat(axis=1) affianca DataFrame per colonna. axis=0 li impila per riga.
+        dropna() con default how='any' rimuove righe con almeno un NaN. Importante per avere
+        serie allineate quando si confrontano mercati diversi (es. festivi italiani vs USA).
+      </aside>
+    </section>
+
+    <!-- SLIDE 10 ─ Normalizzazione a base 100 -->
+    <section>
+      <h2>Normalizzazione a Base 100</h2>
+      <p style="font-size:0.8em;">Per confrontare titoli con prezzi assoluti diversi (Ferrari ~350€, Microsoft ~400$) occorre normalizzare.</p>
+      <div class="two-col">
+        <div>
+          <h3>Formula</h3>
+          <div style="text-align:center;padding:0.8em;background:rgba(26,188,156,0.1);border-radius:8px;border:1px solid #1ABC9C;font-size:0.9em;margin:0.3em 0;">
+            <span style="color:#1ABC9C;font-size:1.3em;">P<sub>base100</sub> = (P<sub>t</sub> / P<sub>0</sub>) × 100</span>
+          </div>
+          <ul style="font-size:0.78em;margin-top:0.6em;">
+            <li>P<sub>0</sub> = primo prezzo della serie</li>
+            <li>P<sub>t</sub> = prezzo al giorno t</li>
+            <li>Tutti partono da <strong>100</strong></li>
+            <li>Valore 115 = +15% dal inizio</li>
+            <li>Valore 85 = &ndash;15% dal inizio</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Codice</h3>
+          <pre><code class="python"># Normalizza: primo valore = 100
+normalizzato = (
+    tutto / tutto.iloc[0] * 100
+)
+
+print(normalizzato.tail(3))
+# Ferrari   Microsoft  MSCI_W
+# 134.2     189.5      121.3
+# ...
+</code></pre>
+          <div class="tip" style="font-size:0.7em;margin-top:0.4em;">
+            <code>tutto.iloc[0]</code> = prima riga (divisore).<br/>
+            L'operazione si applica automaticamente a tutte le colonne (broadcasting).
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        La normalizzazione è fondamentale in finanza per confrontare asset con scale diverse.
+        Chiedere: "Se Ferrari vale 350€ e Microsoft 400$, chi ha reso di più?"
+        Non si può rispondere senza normalizzare. La base 100 risolve questo problema.
+      </aside>
+    </section>
+
+    <!-- SLIDE 11 ─ ES04: Rendimenti -->
+    <section>
+      <h2>ES04 &ndash; Rendimenti e Volatilita</h2>
+      <pre><code class="python">import numpy as np
+
+# Rendimenti giornalieri (variazione % rispetto al giorno prima)
+rend_giorn = prezzi.pct_change().dropna()
+
+# Statistiche annualizzate (252 = gg di borsa in un anno)
+TRADING_DAYS = 252
+
+rendimento_annuo = rend_giorn.mean() * TRADING_DAYS
+volatilita_annua = rend_giorn.std() * np.sqrt(TRADING_DAYS)
+
+print("=== RIEPILOGO PORTAFOGLIO ===")
+for ticker in prezzi.columns:
+    r = rendimento_annuo[ticker]
+    v = volatilita_annua[ticker]
+    print(f"{ticker:12s}: rendimento {r:+.1%}  |  volatilità {v:.1%}")
+</code></pre>
+      <div class="demo">
+        Eseguire in Jupyter e discutere: chi offre il miglior rapporto rischio/rendimento?
+      </div>
+      <aside class="notes">
+        pct_change() calcola (P_t - P_t-1) / P_t-1 per ogni riga.
+        L'annualizzazione moltiplica media per 252 (gg di trading) e std per sqrt(252)
+        perché varianza si somma linearmente ma deviazione standard scala con radice.
+      </aside>
+    </section>
+
+    <!-- SLIDE 12 ─ Sharpe Ratio -->
+    <section>
+      <h2>Sharpe Ratio</h2>
+      <div class="two-col-wide">
+        <div>
+          <h3>Formula</h3>
+          <div style="text-align:center;padding:0.8em;background:rgba(243,156,18,0.1);border-radius:8px;border:1px solid #F39C12;margin:0.3em 0;">
+            <span style="color:#F39C12;font-size:1.2em;">Sharpe = (R<sub>p</sub> &minus; R<sub>f</sub>) / &sigma;<sub>p</sub></span>
+          </div>
+          <ul style="font-size:0.78em;margin-top:0.5em;">
+            <li>R<sub>p</sub> = rendimento del portafoglio</li>
+            <li>R<sub>f</sub> = tasso risk-free (BCE ~3.5%)</li>
+            <li>&sigma;<sub>p</sub> = volatilita annua</li>
+            <li><span class="ok">Sharpe &gt; 1</span> = buono</li>
+            <li><span class="ok">Sharpe &gt; 2</span> = eccellente</li>
+            <li><span class="no">Sharpe &lt; 0.5</span> = rischioso</li>
+          </ul>
+        </div>
+        <div>
+          <pre><code class="python">RISK_FREE = 0.035  # BCE 2024
+
+sharpe = (
+    (rendimento_annuo - RISK_FREE)
+    / volatilita_annua
+)
+
+# Ranking dal migliore
+ranking = sharpe.sort_values(
+    ascending=False
+)
+print("\nRanking Sharpe Ratio:")
+for t, s in ranking.items():
+    emoji = "✓" if s > 1 else "~"
+    print(f"  {emoji} {t:12s}: {s:.2f}")
+</code></pre>
+        </div>
+      </div>
+      <aside class="notes">
+        Il Sharpe ratio misura la qualità del rendimento: quante unità di rischio prendo
+        per ogni unità di rendimento sopra al tasso risk-free.
+        Un investimento con Sharpe = 1.5 è preferibile a uno con Sharpe = 0.8,
+        anche se il secondo ha rendimento assoluto maggiore.
+      </aside>
+    </section>
+
+    <!-- SLIDE 13 ─ Correlazione -->
+    <section>
+      <h2>Matrice di Correlazione</h2>
+      <div class="two-col">
+        <div>
+          <pre><code class="python"># Correlazione tra rendimenti giornalieri
+corr = rend_giorn.corr()
+
+# Formatta output
+print("Matrice Correlazione:")
+print(corr.round(2).to_string())
+</code></pre>
+          <h3 style="margin-top:0.7em;">Interpretazione</h3>
+          <ul style="font-size:0.75em;">
+            <li><span class="ok">1.0</span> = movimento identico</li>
+            <li><span class="ok">0.0</span> = nessuna relazione (ideale per diversificare)</li>
+            <li><span class="no">&minus;1.0</span> = movimento opposto</li>
+            <li>Ferrari &amp; LVMH spesso correlate (entrambe luxury)</li>
+            <li>Terna (utilities) poco correlata con tech USA</li>
+          </ul>
+        </div>
+        <div>
+          <div class="tip">
+            <strong>Diversificazione</strong>: un portafoglio ben diversificato combina asset
+            con correlazione bassa (&lt; 0.5). La Famiglia Bianchi ha titoli europei
+            e USA, utilities e tech: buona diversificazione geografica e settoriale.
+          </div>
+          <div class="demo" style="margin-top:0.6em;">
+            Notare che MSFT e GOOGL hanno correlazione ~0.85: entrambe big-tech USA,
+            si muovono spesso insieme.
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        La correlazione è la misura statistica della co-variazione tra due serie.
+        In gestione di portafoglio, Markowitz dimostrò nel 1952 che combinare asset
+        poco correlati riduce il rischio senza necessariamente ridurre il rendimento.
+      </aside>
+    </section>
+
+    <!-- SLIDE 14 ─ ES05: Reale vs Simulato -->
+    <section class="compact">
+      <h2>ES05 &ndash; Reale vs Simulato</h2>
+      <div class="exercise">Confronta i dati scaricati con quelli nel file DATI_Turin_Wealth.xlsx</div>
+      <pre><code class="python">import pandas as pd
+
+# Carica dati dal file Excel del corso
+dati_corso = pd.read_excel(
+    "DATI_Turin_Wealth.xlsx",
+    sheet_name="QUOTAZIONI_AZIONI",
+    index_col=0,
+    parse_dates=True
+)
+
+# Confronto: stesso periodo
+comune_start = max(prezzi.index[0], dati_corso.index[0])
+comune_end   = min(prezzi.index[-1], dati_corso.index[-1])
+
+prezzi_f   = prezzi.loc[comune_start:comune_end, "Ferrari"]
+dati_f     = dati_corso.loc[comune_start:comune_end, "RACE.MI"]
+
+# Differenza media
+diff = (prezzi_f - dati_f).abs().mean()
+print(f"Differenza media Ferrari: {diff:.4f} €")
+print(f"(dovrebbe essere quasi zero se i dati sono aggiornati)")
+</code></pre>
+      <aside class="notes">
+        Questo esercizio insegna a leggere Excel in pandas con pd.read_excel().
+        La comparazione serve a capire che i dati "reali" e "simulati" devono coincidere
+        se il file DATI è stato generato correttamente dallo script create_dati.py.
+      </aside>
+    </section>
+
+    <!-- SLIDE 15 ─ Takeaway Blocco 1 -->
+    <section class="center-slide">
+      <div class="section-divider">
+        <div class="section-badge">Takeaway &mdash; Blocco 1</div>
+        <h2 style="color:#1ABC9C;">"Con 5 righe di codice,<br/>dati che prima richiedevano ore"</h2>
+        <div style="display:flex;gap:1.5em;justify-content:center;margin-top:1em;flex-wrap:wrap;">
+          <div style="background:rgba(26,188,156,0.1);border:1px solid #1ABC9C;border-radius:8px;padding:0.7em 1.2em;font-size:0.65em;text-align:center;">
+            <div style="color:#1ABC9C;font-size:1.6em;font-weight:700;">yf.download()</div>
+            <div style="color:#bdc3c7;margin-top:0.3em;">5 anni di prezzi<br/>in 1 secondo</div>
+          </div>
+          <div style="background:rgba(243,156,18,0.1);border:1px solid #F39C12;border-radius:8px;padding:0.7em 1.2em;font-size:0.65em;text-align:center;">
+            <div style="color:#F39C12;font-size:1.6em;font-weight:700;">pct_change()</div>
+            <div style="color:#bdc3c7;margin-top:0.3em;">Rendimenti giornalieri<br/>automatici</div>
+          </div>
+          <div style="background:rgba(231,76,60,0.1);border:1px solid #E74C3C;border-radius:8px;padding:0.7em 1.2em;font-size:0.65em;text-align:center;">
+            <div style="color:#E74C3C;font-size:1.6em;font-weight:700;">.corr()</div>
+            <div style="color:#bdc3c7;margin-top:0.3em;">Matrice correlazione<br/>completa in 1 riga</div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        Pausa 5 minuti. Verificare che tutti abbiano eseguito gli ES01-ES05 con successo.
+        Nella seconda parte usiamo questi dati per costruire un report Excel professionale.
+      </aside>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         BLOCCO 2: xlwings  (slides 16–29)
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- SLIDE 16 ─ xlwings intro -->
+    <section>
+      <div class="section-badge">Blocco 2</div>
+      <h2>xlwings &ndash; Python che parla con Excel</h2>
+      <div class="two-col">
+        <div>
+          <h3>Architettura</h3>
+          <div class="steps" style="flex-direction:column;align-items:flex-start;gap:0.3em;font-size:0.7em;">
+            <div style="display:flex;align-items:center;gap:0.5em;">
+              <span style="background:#E74C3C;color:#fff;padding:0.2em 0.6em;border-radius:4px;font-weight:700;">Python</span>
+              <span style="color:#F39C12;">↔</span>
+              <span style="background:#1ABC9C;color:#2C3E50;padding:0.2em 0.6em;border-radius:4px;font-weight:700;">COM/UNO</span>
+              <span style="color:#F39C12;">↔</span>
+              <span style="background:#2C3E50;border:1px solid #F39C12;color:#F39C12;padding:0.2em 0.6em;border-radius:4px;font-weight:700;">Excel</span>
+            </div>
+          </div>
+          <ul style="font-size:0.78em;margin-top:0.7em;">
+            <li>Controllo <strong>diretto</strong> dell'applicazione Excel</li>
+            <li>Legge e scrive celle, fogli, grafici</li>
+            <li>Applica formule, formattazione, protezione</li>
+            <li>Richiede Excel installato (Windows/Mac)</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Perche non openpyxl?</h3>
+          <table style="font-size:0.68em;">
+            <thead><tr><th>Feature</th><th>xlwings</th><th>openpyxl</th></tr></thead>
+            <tbody>
+              <tr><td>Excel installato</td><td class="ok">non serve</td><td class="no">serve</td></tr>
+              <tr><td>Grafici nativi</td><td class="ok">si</td><td class="no">limitato</td></tr>
+              <tr><td>Formule live</td><td class="ok">si</td><td class="no">no</td></tr>
+              <tr><td>Protezione</td><td class="ok">completa</td><td class="no">parziale</td></tr>
+              <tr><td>No Excel (server)</td><td class="no">no</td><td class="ok">si</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <aside class="notes">
+        xlwings usa il protocollo COM su Windows (o AppleScript su Mac) per comunicare
+        con l'applicazione Excel aperta. Questo significa che TUTTE le funzionalità di Excel
+        sono disponibili — incluse quelle che openpyxl non supporta (grafici reali, protezione, VBA).
+      </aside>
+    </section>
+
+    <!-- SLIDE 17 ─ ES06: DataFrame to Excel -->
+    <section class="compact">
+      <h2>ES06 &ndash; DataFrame in Excel</h2>
+      <div class="exercise">Scrivi la tabella prezzi in un foglio Excel</div>
+      <pre><code class="python">import xlwings as xw
+
+# Apri Excel (visible=True lo rende visibile sullo schermo)
+app = xw.App(visible=True)
+wb  = app.books.add()
+ws  = wb.sheets[0]
+ws.name = "Prezzi"
+
+# Scrivere un DataFrame: una sola riga!
+ws.range("A1").value = prezzi
+
+# Scrivi anche l'intestazione
+ws.range("A1").value = [prezzi.columns.tolist()]  # header
+ws.range("A2").options(index=True).value = prezzi  # dati + indice
+
+# Salva
+wb.save("output/report_bianchi.xlsx")
+print("File salvato!")
+</code></pre>
+      <div class="tip">
+        <code>.options(index=True)</code> include la colonna data come prima colonna.
+        Senza <code>index=False</code>, l'indice viene sempre scritto.
+      </div>
+      <aside class="notes">
+        Questa singola riga sostituisce settimane di copia-incolla. xlwings serializza
+        automaticamente il DataFrame: converte le date in formato Excel, i float in numeri,
+        i NaN in celle vuote. La velocità dipende dalle dimensioni: 1258 righe x 7 colonne
+        richiede meno di 1 secondo.
+      </aside>
+    </section>
+
+    <!-- SLIDE 18 ─ The Excel App object model -->
+    <section class="compact">
+      <h2>Il Modello ad Oggetti di Excel</h2>
+      <pre><code class="python">import xlwings as xw
+
+# Gerarchia: App → Workbook → Sheet → Range
+app = xw.App(visible=True, add_book=False)
+
+wb  = app.books.open("report_bianchi.xlsx")
+# oppure: wb = app.books.add()
+
+ws  = wb.sheets["Prezzi"]
+# oppure: wb.sheets.add("NuovoFoglio")
+
+# Range: cella singola
+rng = ws.range("A1")
+print(rng.value)
+
+# Range: intervallo
+rng_multi = ws.range("A1:E10")
+print(rng_multi.value)  # lista di liste
+
+# Ultima cella usata
+ultima = ws.used_range
+print(f"Usato: {ultima.address}")
+</code></pre>
+      <div class="demo">
+        La gerarchia <code>App → Book → Sheet → Range</code> rispecchia esattamente
+        l'interfaccia utente di Excel.
+      </div>
+      <aside class="notes">
+        Il modello ad oggetti è identico a quello di VBA. Se avete esperienza con VBA,
+        xlwings è immediatamente familiare. La differenza è che usate Python invece di Basic,
+        e potete combinarlo con pandas, numpy, matplotlib, ecc.
+      </aside>
+    </section>
+
+    <!-- SLIDE 19 ─ ES07: Formattazione professionale -->
+    <section class="compact">
+      <h2>ES07 &ndash; Formattazione Professionale</h2>
+      <pre><code class="python">from tw_config import COLORS  # palette Turin Wealth
+
+# Header: sfondo scuro, testo oro
+header = ws.range("A1:G1")
+header.color            = COLORS['dark_blue']   # (44, 62, 80)
+header.font.color       = COLORS['gold']        # (243, 156, 18)
+header.font.bold        = True
+header.font.size        = 11
+
+# Bordi tabella
+ws.range("A1:G100").api.Borders.Weight = 2
+
+# Larghezza colonne automatica
+ws.autofit()
+
+# Blocca la prima riga (freeze panes)
+ws.freeze_panes = "A2"
+
+# Zoom al 90%
+ws.api.PageSetup.Zoom = 90
+</code></pre>
+      <aside class="notes">
+        COLORS è un dizionario in tw_config.py con le tuple RGB della palette Turin Wealth.
+        xlwings accetta sia tuple RGB sia interi packed. Mostrare come appare il foglio
+        dopo la formattazione.
+      </aside>
+    </section>
+
+    <!-- SLIDE 20 ─ NUMBER FORMAT TRAP -->
+    <section class="compact">
+      <h2>La trappola del NumberFormat</h2>
+      <div class="warn">
+        In Excel italiano, il punto <code>.</code> e la virgola <code>,</code> hanno significato INVERTITO rispetto all'inglese!
+      </div>
+      <div class="two-col" style="margin-top:0.7em;">
+        <div>
+          <h3 class="no">SBAGLIATO</h3>
+          <pre><code class="python"># Excel inglese — NON fare in italiano!
+ws.range("B2").number_format = "0.0%"
+# Risultato: "04%" invece di "3,5%"
+# Excel legge il punto come migliaia!
+
+ws.range("C2").number_format = "#,##0"
+# Risultato: "3000000,0"
+# La virgola viene letta come decimale!
+</code></pre>
+        </div>
+        <div>
+          <h3 class="ok">CORRETTO</h3>
+          <pre><code class="python"># SEMPRE usare NumberFormatLocal con
+# sintassi italiana:
+ws.range("B2").api.NumberFormatLocal = "0,0%"
+# Virgola = decimale in IT → OK!
+
+ws.range("C2").api.NumberFormatLocal = "#.##0"
+# Punto = migliaia in IT → OK!
+
+# Esempi pratici:
+# "+0,0%;-0,0%"  rendimento con segno
+# "#.##0,00 €"   valuta italiana
+# "gg/mm/aaaa"   data in italiano
+</code></pre>
+        </div>
+      </div>
+      <aside class="notes">
+        QUESTO E' IL BUG PIU' COMUNE! Ogni studente lo incontra la prima volta.
+        In inglese: punto = decimale, virgola = migliaia.
+        In italiano (e nella maggior parte d'Europa): virgola = decimale, punto = migliaia.
+        Excel rispetta il locale del sistema operativo. NumberFormatLocal usa la sintassi
+        del locale corrente; NumberFormat usa sempre la sintassi inglese.
+      </aside>
+    </section>
+
+    <!-- SLIDE 21 ─ Color scheme -->
+    <section>
+      <h2>La Palette Turin Wealth</h2>
+      <p style="font-size:0.75em;color:#bdc3c7;">Da <code>tw_config.py</code> — usata in tutti i file del corso</p>
+      <div class="kpi-row" style="margin-top:0.5em;">
+        <div class="kpi" style="border-top-color:#2C3E50;background:#2C3E50;border:2px solid #555;">
+          <span class="kpi-value" style="color:#fff;">#2C3E50</span>
+          <span class="kpi-label">dark_blue<br/>Header, sfondi</span>
+        </div>
+        <div class="kpi" style="border-top-color:#E74C3C;">
+          <span class="kpi-value" style="color:#E74C3C;">#E74C3C</span>
+          <span class="kpi-label">coral<br/>Accenti, alert</span>
+        </div>
+        <div class="kpi" style="border-top-color:#1ABC9C;">
+          <span class="kpi-value" style="color:#1ABC9C;">#1ABC9C</span>
+          <span class="kpi-label">teal<br/>Positivo, OK</span>
+        </div>
+        <div class="kpi" style="border-top-color:#F39C12;">
+          <span class="kpi-value" style="color:#F39C12;">#F39C12</span>
+          <span class="kpi-label">gold<br/>Stelle, titoli</span>
+        </div>
+      </div>
+      <pre style="margin-top:0.8em;"><code class="python"># tw_config.py
+COLORS = {
+    'dark_blue': (44,  62,  80),   # #2C3E50
+    'coral':     (231, 76,  60),   # #E74C3C
+    'teal':      (26,  188, 156),  # #1ABC9C
+    'gold':      (243, 156, 18),   # #F39C12
+    'light_bg':  (236, 240, 241),  # #ECF0F1
+    'white':     (255, 255, 255),
+}
+</code></pre>
+      <aside class="notes">
+        Mantenere una palette coerente rende i report riconoscibili e professionali.
+        La palette Turin Wealth è ispirata ai colori della consulenza finanziaria premium:
+        blu scuro (serietà), oro (valore), teal (crescita), coral (attenzione).
+      </aside>
+    </section>
+
+    <!-- SLIDE 22 ─ ES08: Formule italiane -->
+    <section>
+      <h2>ES08 &ndash; Il problema delle formule con @</h2>
+      <p style="font-size:0.8em;">Excel 365 aggiunge automaticamente <code>@</code> davanti alle formule "legacy":</p>
+      <div class="two-col">
+        <div>
+          <h3 class="no">Con FormulaLocal</h3>
+          <pre><code class="python"># xlwings usa FormulaLocal → Excel aggiunge @
+ws.range("B5").api.FormulaLocal = \
+    "=SOMMA(D13:D22)"
+
+# In Excel la cella mostra:
+# =@SOMMA(D13:D22)
+# Gli studenti si confondono!
+</code></pre>
+        </div>
+        <div>
+          <h3 class="ok">Con Formula2Local</h3>
+          <pre><code class="python"># Formula2Local = dynamic array → no @
+ws.range("B5").api.Formula2Local = \
+    "=SOMMA(D13:D22)"
+
+# In Excel la cella mostra:
+# =SOMMA(D13:D22)
+# Pulito e corretto!
+</code></pre>
+        </div>
+      </div>
+      <div class="tip" style="margin-top:0.6em;">
+        <code>Formula2Local</code> e disponibile da Excel 365 (build 2009+). Per versioni precedenti
+        fare fallback su <code>FormulaLocal</code>.
+      </div>
+      <aside class="notes">
+        Il simbolo @ in Excel 365 indica "implicit intersection operator": un meccanismo
+        per compatibilità con le vecchie formule single-value in un mondo di dynamic arrays.
+        Gli studenti vedono @ e pensano ci sia un errore. Formula2Local evita il problema
+        usando direttamente la modalità dynamic array.
+      </aside>
+    </section>
+
+    <!-- SLIDE 23 ─ set_formula() -->
+    <section class="compact">
+      <h2>La Funzione <code>set_formula()</code></h2>
+      <p style="font-size:0.8em;margin-bottom:0.6em;">In <code>tw_utils.py</code> — usarla SEMPRE per impostare formule:</p>
+      <pre><code class="python">def set_formula(rng, formula_it):
+    """
+    Imposta una formula italiana senza @ in Excel 365.
+
+    Args:
+        rng:        range xlwings (es. ws.range("B5"))
+        formula_it: formula in italiano con = iniziale
+                    (es. "=SOMMA(D13:D22)")
+    """
+    try:
+        # Excel 365+: dynamic array, no @
+        rng.api.Formula2Local = formula_it
+    except AttributeError:
+        # Excel 2019 e precedenti: fallback
+        rng.api.FormulaLocal = formula_it
+
+
+# Utilizzo:
+from tw_utils import set_formula
+
+set_formula(ws.range("B5"), "=SOMMA(D13:D22)")
+set_formula(ws.range("C5"), "=MEDIA(D13:D22)")
+set_formula(ws.range("D5"), "=CONTA.SE(E13:E22;\"OK\")")
+</code></pre>
+      <aside class="notes">
+        Il pattern try/except gestisce la compatibilità tra versioni di Excel.
+        Formula2Local esiste da Excel 365; su versioni precedenti lancia AttributeError
+        e si fa fallback su FormulaLocal (che aggiungerà @ ma almeno funziona).
+        ENFATIZZARE: usare sempre set_formula(), mai assegnare .value = "=..." per formule.
+      </aside>
+    </section>
+
+    <!-- SLIDE 24 ─ Semicolons! -->
+    <section>
+      <h2>Il Punto e Virgola Italiano</h2>
+      <p style="font-size:0.8em;color:#bdc3c7;">Excel italiano usa <code>;</code> come separatore argomenti, non <code>,</code></p>
+      <table style="font-size:0.72em;margin-top:0.5em;">
+        <thead>
+          <tr>
+            <th>Funzione</th>
+            <th>Italiano (CORRETTO)</th>
+            <th>Inglese (SBAGLIATO)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Condizione</td>
+            <td><code>=SE(A1&gt;10;"Grande";"Piccolo")</code></td>
+            <td><span class="no">=IF(A1&gt;10,"Grande","Piccolo")</span></td>
+          </tr>
+          <tr>
+            <td>Somma.Se</td>
+            <td><code>=SOMMA.SE(A1:A10;"&gt;5")</code></td>
+            <td><span class="no">=SUMIF(A1:A10,"&gt;5")</span></td>
+          </tr>
+          <tr>
+            <td>Cerca verticale</td>
+            <td><code>=CERCA.VERT(B2;$D:$E;2;FALSO)</code></td>
+            <td><span class="no">=VLOOKUP(B2,$D:$E,2,FALSE)</span></td>
+          </tr>
+          <tr>
+            <td>Testo formula</td>
+            <td><code>=TESTO.FORMULA(B5)</code></td>
+            <td><span class="no">=FORMULATEXT(B5)</span></td>
+          </tr>
+          <tr>
+            <td>Conta.Se</td>
+            <td><code>=CONTA.SE(D1:D50;"OK")</code></td>
+            <td><span class="no">=COUNTIF(D1:D50,"OK")</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="warn" style="margin-top:0.6em;font-size:0.75em;">
+        NON esiste <code>FORMULATESTO</code> in Excel italiano. Usare <code>TESTO.FORMULA</code>.
+      </div>
+      <aside class="notes">
+        Questo errore capita a tutti, anche ai professionisti, quando si passa da
+        documentazione inglese (Stack Overflow, Microsoft Docs) a Excel italiano.
+        Il cambio separatore vale anche per gli argomenti in formule come CERCA.VERT,
+        SE, SOMMA.SE, ecc. Negli script Python le formule le scriviamo in italiano
+        perché Excel le eseguirà nel locale italiano dell'utente.
+      </aside>
+    </section>
+
+    <!-- SLIDE 25 ─ ES09: Charts -->
+    <section class="compact">
+      <h2>ES09 &ndash; Grafici da Python</h2>
+      <pre><code class="python">import xlwings as xw
+
+ws = wb.sheets["Prezzi"]
+
+# 1. Crea il grafico (posizione in punti: left, top, width, height)
+chart = ws.charts.add(left=10, top=300, width=500, height=300)
+
+# 2. Imposta i dati sorgente
+#    prezzi normalizzati sono in A1:F1259 (con header in riga 1)
+chart.set_source_data(ws.range("A1:F1259"))
+
+# 3. Tipo grafico
+chart.chart_type = "line"           # linea
+
+# 4. Titolo
+chart.api[1].HasTitle = True
+chart.api[1].ChartTitle.Text = "Performance Portafoglio Bianchi (Base 100)"
+
+# 5. Colori serie (accesso tramite API nativa)
+series = chart.api[1].SeriesCollection
+series(1).Format.Line.ForeColor.RGB = 0x1ABC9C  # teal
+</code></pre>
+      <aside class="notes">
+        chart.api[1] accede all'oggetto COM Chart nativo. Alcune proprietà avanzate
+        (colori serie, assi, legenda) richiedono l'API nativa perché xlwings non le
+        ha ancora wrappate. E' un pattern comune: usare xlwings per il 90% e api per il resto.
+      </aside>
+    </section>
+
+    <!-- SLIDE 26 ─ Chart types -->
+    <section>
+      <h2>Tipi di Grafico &ndash; Quando Usarli</h2>
+      <table style="font-size:0.72em;">
+        <thead>
+          <tr><th>Tipo</th><th>xlwings code</th><th>Uso ideale in finanza</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Line</strong></td>
+            <td><code>"line"</code></td>
+            <td>Prezzi storici, performance nel tempo, confronto benchmark</td>
+          </tr>
+          <tr>
+            <td><strong>Bar / Column</strong></td>
+            <td><code>"bar" / "column_clustered"</code></td>
+            <td>Confronto rendimenti annuali, asset allocation, TER per ETF</td>
+          </tr>
+          <tr>
+            <td><strong>Pie / Donut</strong></td>
+            <td><code>"pie" / "doughnut"</code></td>
+            <td>Composizione portafoglio (% per asset class / geo)</td>
+          </tr>
+          <tr>
+            <td><strong>Scatter</strong></td>
+            <td><code>"xy_scatter"</code></td>
+            <td>Rischio vs Rendimento (frontiera efficiente), correlazioni</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="tip" style="margin-top:0.7em;">
+        Il grafico a dispersione (scatter) Rischio/Rendimento e il piu usato nella
+        presentazione di portafogli professionali: ogni bolla e un titolo, asse X = volatilita,
+        asse Y = rendimento.
+      </div>
+      <aside class="notes">
+        Regola empirica in finanza: per tutto ciò che cambia nel tempo, usare line chart.
+        Per confronti statici (chi rende di più), bar chart. Per composizioni, pie/donut.
+        Il bubble chart (variante dello scatter con dimensione della bolla = peso nel portafoglio)
+        è la versione professionale della frontiera di Markowitz.
+      </aside>
+    </section>
+
+    <!-- SLIDE 27 ─ Professional touches -->
+    <section class="compact">
+      <h2>Finiture Professionali</h2>
+      <div class="two-col">
+        <div>
+          <pre><code class="python"># Adatta larghezza colonne al contenuto
+ws.autofit("columns")
+ws.autofit("rows")
+
+# Blocca intestazioni (freeze panes)
+ws.freeze_panes = "B2"  # col A e riga 1 fisse
+
+# Imposta area di stampa
+ws.api.PageSetup.PrintArea = "$A$1:$H$50"
+ws.api.PageSetup.Orientation = 2  # landscape
+ws.api.PageSetup.FitToPagesWide = 1
+ws.api.PageSetup.FitToPagesTall = 0  # auto
+
+# Header/footer di stampa
+ws.api.PageSetup.LeftHeader  = "&\"Calibri\"Turin Wealth Advisory"
+ws.api.PageSetup.RightFooter = "Pagina &P di &N"
+ws.api.PageSetup.LeftFooter  = f"Generato: {pd.Timestamp.now():%d/%m/%Y}"
+</code></pre>
+        </div>
+        <div>
+          <pre><code class="python"># Zoom visualizzazione
+ws.api.PageSetup.Zoom = 85
+
+# Griglia visibile/nascosta
+ws.api.DisplayGridlines = False
+
+# Tab colore foglio
+ws.api.Tab.Color = (44, 62, 80)  # dark blue
+
+# Mostra/nascondi foglio
+ws.api.Visible = 0  # nascosto
+ws.api.Visible = 2  # very hidden
+# (2 = non appare neanche nel menu fogli)
+</code></pre>
+          <div class="tip" style="font-size:0.7em;margin-top:0.4em;">
+            <code>Visible = 2</code> (xlVeryHidden) nasconde il foglio anche dal
+            menu contestuale: solo VBA o Python possono renderlo visibile.
+            Usato per fogli _CORREZIONE del corso!
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        Queste finiture trasformano un file "funzionale" in un report "professionale".
+        Il menu PageSetup controlla tutto ciò che riguarda la stampa e l'esportazione PDF.
+        Mostrate la differenza prima/dopo: stesso dato, presentazione completamente diversa.
+      </aside>
+    </section>
+
+    <!-- SLIDE 28 ─ Behind the scenes -->
+    <section class="compact">
+      <h2>Dietro le quinte &ndash; Come sono fatti i vostri file</h2>
+      <p style="font-size:0.75em;color:#bdc3c7;margin-bottom:0.5em;">
+        I file Modulo_01…07 che usate ogni giorno sono generati esattamente con queste tecniche.
+        Snippet da <code>create_mod01.py</code>:
+      </p>
+      <pre><code class="python">def crea_esercizio_02(ws, dati):
+    """ES02: Calcola il patrimonio totale."""
+    ws.range("A3").value = "ES02 – Il Patrimonio Totale"
+    ws.range("A3").font.color = COLORS['gold']
+
+    for membro in dati['anagrafica']:            # Dati
+        ws.range(f"C{row}").api.NumberFormatLocal = "#.##0 €"
+
+    ws.range(f"C{input_row}").color = (255,255,217)  # Input
+    ws.range(f"C{input_row}").api.AddComment("...")   # Guida
+
+    # Verifica con TESTO.FORMULA
+    set_formula(ws.range(f"D{input_row}"),
+        f'=SE.ERRORE(SE(TESTO.FORMULA(...);"OK";"NO");"NO")')
+</code></pre>
+      <aside class="notes">
+        Questo snippet mostra il pattern completo: dati → formattazione → cella input gialla →
+        commento guida → verifica con TESTO.FORMULA. E' esattamente il codice che gira
+        per generare i file che gli studenti aprono in classe. Chiudere il cerchio
+        tra "usare Excel" e "creare Excel con Python".
+      </aside>
+    </section>
+
+    <!-- SLIDE 29 ─ Takeaway Blocco 2 -->
+    <section class="center-slide">
+      <div class="section-divider">
+        <div class="section-badge">Takeaway &mdash; Blocco 2</div>
+        <h2 style="color:#F39C12;">"Excel professionale, generato<br/>da codice, riproducibile"</h2>
+        <div style="font-size:0.72em;margin-top:1em;display:flex;gap:1em;justify-content:center;flex-wrap:wrap;">
+          <div style="background:rgba(231,76,60,0.1);border:1px solid #E74C3C;border-radius:8px;padding:0.6em 1em;max-width:200px;text-align:center;">
+            <div style="color:#E74C3C;font-weight:700;">NumberFormatLocal</div>
+            <div style="color:#bdc3c7;font-size:0.85em;margin-top:0.3em;">Sempre per locale italiano</div>
+          </div>
+          <div style="background:rgba(26,188,156,0.1);border:1px solid #1ABC9C;border-radius:8px;padding:0.6em 1em;max-width:200px;text-align:center;">
+            <div style="color:#1ABC9C;font-weight:700;">set_formula()</div>
+            <div style="color:#bdc3c7;font-size:0.85em;margin-top:0.3em;">Formula2Local, no @</div>
+          </div>
+          <div style="background:rgba(243,156,18,0.1);border:1px solid #F39C12;border-radius:8px;padding:0.6em 1em;max-width:200px;text-align:center;">
+            <div style="color:#F39C12;font-weight:700;">Punto e Virgola</div>
+            <div style="color:#bdc3c7;font-size:0.85em;margin-top:0.3em;">; non , negli argomenti</div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        Seconda pausa. Verificare ES06-ES09. Nella terza parte mettiamo tutto insieme
+        in una pipeline completa che genera un PDF professionale in un click.
+      </aside>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         BLOCCO 3: PIPELINE  (slides 30–41)
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- SLIDE 30 ─ Function composition -->
+    <section class="compact">
+      <div class="section-badge">Blocco 3</div>
+      <h2>Composizione di Funzioni</h2>
+      <pre><code class="python">"""
+Pipeline modularizzata: ogni funzione fa una cosa sola.
+Principio: Single Responsibility + composizione.
+"""
+
+def scarica_dati(tickers, period="5y"):
+    """Blocco 1: yfinance → DataFrame pulito"""
+    ...
+
+def calcola_statistiche(prezzi):
+    """Blocco 2: pandas → metriche finanziarie"""
+    ...
+
+def crea_report_excel(stats, prezzi):
+    """Blocco 3: xlwings → workbook formattato"""
+    ...
+
+def esporta_pdf(wb, output_path):
+    """Blocco 4: xlwings → PDF professionale"""
+    ...
+
+# ── Punto d'ingresso ────────────────────────────────────
+if __name__ == "__main__":
+    dati  = scarica_dati(["RACE.MI", "MSFT", "TRN.MI"])
+    stats = calcola_statistiche(dati)
+    wb    = crea_report_excel(stats, dati)
+    esporta_pdf(wb, "report_bianchi_Q1_2024.pdf")
+    print("Report generato!")
+</code></pre>
+      <aside class="notes">
+        Il pattern __main__ è fondamentale: separa "funzioni riusabili" da "script eseguibile".
+        Ogni funzione è testabile indipendentemente. La pipeline diventa leggibile come una ricetta.
+        Enfatizzare che questa struttura è identica a quella di create_mod01.py nei file del corso.
+      </aside>
+    </section>
+
+    <!-- SLIDE 31 ─ ES10: Script completo -->
+    <section class="compact">
+      <h2>ES10 &ndash; Script Modulare Completo</h2>
+      <div class="exercise">Struttura il tuo script come una pipeline di funzioni</div>
+      <pre class="scroll"><code class="python">from tw_config import COLORS, TICKERS_BIANCHI
+
+def scarica_prezzi(tickers=TICKERS_BIANCHI):
+    raw = yf.download(tickers, period="5y", progress=False)
+    return raw["Adj Close"].dropna()
+
+def calcola_stats(prezzi):
+    rend = prezzi.pct_change().dropna()
+    return pd.DataFrame({
+        "rendimento":  rend.mean() * 252,
+        "volatilita":  rend.std() * np.sqrt(252),
+        "sharpe": (rend.mean()*252 - 0.035)/(rend.std()*np.sqrt(252)),
+    })
+
+def crea_workbook(prezzi, stats):
+    app = xw.App(visible=False)
+    wb  = app.books.add()
+    return wb, app  # ... fogli e formattazione
+</code></pre>
+      <aside class="notes">
+        visible=False apre Excel senza mostrarlo a schermo. Utile in produzione o
+        quando si girano molti report. Per debug, usare visible=True per vedere cosa succede.
+        TICKERS_BIANCHI è la lista dei ticker definita in tw_config.py.
+      </aside>
+    </section>
+
+    <!-- SLIDE 32 ─ ES11: Protection -->
+    <section class="compact">
+      <h2>ES11 &ndash; Protezione Celle e Fogli</h2>
+      <div class="two-col">
+        <div>
+          <pre><code class="python">from tw_utils import protect_sheet
+
+# 1. Prima sblocca TUTTE le celle
+ws.api.Cells.Locked = False
+
+# 2. Blocca le celle specifiche
+ws.range("A1:H1").api.Locked = True   # header
+ws.range("D5:D20").api.Locked = True  # formule verifica
+
+# 3. Nascondi formule sensibili
+ws.range("D5:D20").api.FormulaHidden = True
+
+# 4. FONDAMENTALE: proteggi il foglio
+#    FormulaHidden funziona SOLO dopo Protect!
+protect_sheet(ws, password="docente2024")
+
+# 5. Per fogli nascosti (es. _CORREZIONE)
+ws_corr = wb.sheets["_CORREZIONE"]
+ws_corr.api.Visible = 2  # xlVeryHidden
+protect_sheet(ws_corr, password="docente2024")
+</code></pre>
+        </div>
+        <div>
+          <h3>Schema di protezione</h3>
+          <div style="font-size:0.7em;">
+            <div style="background:rgba(231,76,60,0.15);border:1px solid #E74C3C;border-radius:6px;padding:0.5em;margin-bottom:0.4em;">
+              <strong style="color:#E74C3C;">Cella: Locked = True</strong><br/>
+              Non modificabile quando il foglio e protetto
+            </div>
+            <div style="background:rgba(243,156,18,0.15);border:1px solid #F39C12;border-radius:6px;padding:0.5em;margin-bottom:0.4em;">
+              <strong style="color:#F39C12;">Cella: FormulaHidden = True</strong><br/>
+              Formula invisibile nella barra — SOLO se foglio protetto
+            </div>
+            <div style="background:rgba(26,188,156,0.15);border:1px solid #1ABC9C;border-radius:6px;padding:0.5em;">
+              <strong style="color:#1ABC9C;">Foglio: Protect(password)</strong><br/>
+              Attiva Locked e FormulaHidden su tutte le celle
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        L'errore più comune con la protezione: impostare FormulaHidden = True
+        ma dimenticarsi di chiamare .Protect() sul foglio. Senza protezione,
+        FormulaHidden non ha effetto. Sempre proteggere DOPO aver configurato le celle.
+      </aside>
+    </section>
+
+    <!-- SLIDE 33 ─ Protection diagram -->
+    <section>
+      <h2>Diagramma della Protezione</h2>
+      <div style="font-size:0.78em;margin:0.5em 0;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.8em;">
+          <div style="background:rgba(26,188,156,0.1);border:2px solid #1ABC9C;border-radius:8px;padding:0.7em;text-align:center;">
+            <div style="color:#1ABC9C;font-weight:700;font-size:1.1em;">Livello Cella</div>
+            <pre style="font-size:0.7em;background:transparent;border:none;box-shadow:none;padding:0.3em 0;text-align:left;"><code style="background:transparent;color:#ecf0f1;padding:0;">.api.Locked = True
+.api.FormulaHidden = True
+.color = INPUT_YELLOW</code></pre>
+            <div style="color:#bdc3c7;font-size:0.75em;">Si configura per cella</div>
+          </div>
+          <div style="background:rgba(243,156,18,0.1);border:2px solid #F39C12;border-radius:8px;padding:0.7em;text-align:center;">
+            <div style="color:#F39C12;font-weight:700;font-size:1.1em;">Livello Foglio</div>
+            <pre style="font-size:0.7em;background:transparent;border:none;box-shadow:none;padding:0.3em 0;text-align:left;"><code style="background:transparent;color:#ecf0f1;padding:0;">ws.api.Protect(
+  Password="xxx",
+  Contents=True
+)</code></pre>
+            <div style="color:#bdc3c7;font-size:0.75em;">ATTIVA Locked + FormulaHidden</div>
+          </div>
+          <div style="background:rgba(231,76,60,0.1);border:2px solid #E74C3C;border-radius:8px;padding:0.7em;text-align:center;">
+            <div style="color:#E74C3C;font-weight:700;font-size:1.1em;">Livello File</div>
+            <pre style="font-size:0.7em;background:transparent;border:none;box-shadow:none;padding:0.3em 0;text-align:left;"><code style="background:transparent;color:#ecf0f1;padding:0;">wb.api.Protect(
+  Password="xxx"
+)
+ws.api.Visible = 2</code></pre>
+            <div style="color:#bdc3c7;font-size:0.75em;">Protegge struttura workbook</div>
+          </div>
+        </div>
+        <div class="warn" style="margin-top:0.8em;">
+          <strong>Ordine obbligatorio</strong>: configura celle → chiama Protect() → salva.
+          Mai in ordine inverso!
+        </div>
+      </div>
+      <aside class="notes">
+        I tre livelli di protezione sono indipendenti ma si completano a vicenda.
+        Per i file del corso usiamo tutti e tre: celle studente sbloccate (gialle),
+        celle verifica bloccate con formula nascosta, fogli _CORREZIONE very hidden.
+      </aside>
+    </section>
+
+    <!-- SLIDE 34 ─ ES12: Multi-sheet report -->
+    <section class="compact">
+      <h2>ES12 &ndash; Report Multi-Foglio</h2>
+      <div class="exercise">Costruisci un report con 4 fogli dedicati</div>
+      <pre><code class="python">def crea_report_completo(wb, prezzi, stats):
+    """Crea 4 fogli: Copertina, Statistiche, Grafici, Correlazione."""
+
+    # ── Foglio 1: Copertina ─────────────────────────────────────────
+    ws_cover = wb.sheets.add("Copertina", before=wb.sheets[0])
+    ws_cover.range("B3").value = "TURIN WEALTH ADVISORY"
+    ws_cover.range("B3").font.size = 24
+    ws_cover.range("B3").font.bold = True
+    ws_cover.range("B3").font.color = COLORS["gold"]
+    ws_cover.range("B5").value = "Report Portafoglio – Famiglia Bianchi"
+    ws_cover.range("B7").value = f"Data: {pd.Timestamp.now():%d %B %Y}"
+    ws_cover.api.Tab.Color = COLORS['dark_blue']
+
+    # ── Foglio 2: Statistiche ───────────────────────────────────────
+    ws_stats = wb.sheets.add("Statistiche")
+    ws_stats.range("A1").value = stats.T  # trasposta per leggibilita
+    # ... formattazione
+
+    # ── Foglio 3: Grafici ───────────────────────────────────────────
+    ws_chart = wb.sheets.add("Grafici")
+    # ... aggiunge grafico performance e scatter rischio/rendimento
+
+    # ── Foglio 4: Correlazione ──────────────────────────────────────
+    ws_corr = wb.sheets.add("Correlazione")
+    corr = prezzi.pct_change().dropna().corr()
+    ws_corr.range("A1").value = corr
+</code></pre>
+      <aside class="notes">
+        wb.sheets.add() aggiunge un nuovo foglio. Il parametro before/after determina
+        la posizione nella barra dei fogli. Tab.Color imposta il colore della linguetta.
+        La struttura a 4 fogli è il minimo per un report professionale:
+        Copertina (branding), Statistiche (numeri), Grafici (visuale), Dettaglio (dati).
+      </aside>
+    </section>
+
+    <!-- SLIDE 35 ─ Real code from the project -->
+    <section class="compact">
+      <h2>Codice Reale dal Progetto</h2>
+      <p style="font-size:0.75em;color:#bdc3c7;">Snippet da <code>create_mod01.py</code> &mdash; genera il foglio ISTRUZIONI del Modulo 1</p>
+      <pre><code class="python">def crea_foglio_istruzioni(wb, esercizi, mod_info):
+    """Crea foglio ISTRUZIONI con riepilogo e stelle."""
+    ws = wb.sheets.add("ISTRUZIONI")
+    ws.range("A1").value = f"MODULO {mod_info['numero']}"
+    ws.range("A1").api.Font.Color = rgb_to_int(COLORS['gold'])
+
+    headers = ["N.", "Titolo", "Tipo", "Stelle Max", "Ottenute"]
+    ws.range("A3").value = [headers]
+
+    for i, es in enumerate(esercizi, start=4):
+        ws.range(f"A{i}").value = [[es['num'], es['titolo'], ...]]
+        # Legge stelle dal foglio esercizio
+        formula = f"='{es['foglio']}'!{es['stelle_range']}"
+        set_formula(ws.range(f"E{i}"), formula)
+</code></pre>
+      <aside class="notes">
+        Questo è il codice REALE che gira per creare i vostri file. I fogli ISTRUZIONI
+        che vedete aperti ogni volta non sono scritti a mano: sono generati da questa funzione.
+        Ogni esercizio ha un stelle_range che punta alla cella stelle nel foglio specifico.
+        Le formule ='{foglio}'!{cella} collegano i fogli tra loro.
+      </aside>
+    </section>
+
+    <!-- SLIDE 36 ─ ES13: PDF export -->
+    <section class="compact">
+      <h2>ES13 &ndash; Export PDF Professionale</h2>
+      <pre><code class="python">def esporta_pdf(wb, output_path: str):
+    """Esporta il workbook come PDF."""
+    for ws in wb.sheets:
+        if ws.name.startswith("_"): continue
+        setup = ws.api.PageSetup
+        setup.Orientation = 2           # landscape
+        setup.FitToPagesWide = 1
+        setup.CenterHorizontally = True
+
+    wb.api.ExportAsFixedFormat(
+        Type=0, Filename=os.path.abspath(output_path),
+        Quality=0, OpenAfterPublish=False)
+</code></pre>
+      <aside class="notes">
+        ExportAsFixedFormat è la funzione COM nativa di Excel per esportare PDF.
+        Supporta tutte le impostazioni di PageSetup. OpenAfterPublish=True aprirebbe
+        automaticamente il PDF dopo la generazione — utile per debug.
+        Questa singola funzione sostituisce Ctrl+P → Salva come PDF manuale.
+      </aside>
+    </section>
+
+    <!-- SLIDE 37 ─ ES14: Simulation vs Reality -->
+    <section>
+      <h2>ES14 &ndash; Simulazione vs Realta</h2>
+      <div class="two-col">
+        <div>
+          <h3>Dati simulati (tw_config.py)</h3>
+          <pre><code class="python">import random
+
+def genera_prezzi_simulati(
+    start=100, n_giorni=1260, drift=0.0003, vol=0.015
+):
+    """Moto Browniano Geometrico semplificato."""
+    prezzi = [start]
+    for _ in range(n_giorni - 1):
+        rendimento = random.gauss(drift, vol)
+        prezzi.append(prezzi[-1] * (1 + rendimento))
+    return prezzi
+</code></pre>
+        </div>
+        <div>
+          <h3>Dati reali (yfinance)</h3>
+          <pre><code class="python">df = yf.download("RACE.MI", period="5y")
+prezzi_reali = df["Adj Close"].tolist()
+</code></pre>
+          <h3 style="margin-top:0.8em;">Limitazioni simulazione</h3>
+          <ul style="font-size:0.75em;">
+            <li>Distribuzione normale vs reale (fat tails)</li>
+            <li>Nessuna correlazione tra asset</li>
+            <li>Drift costante (irrealistico)</li>
+            <li>Nessun evento di mercato (COVID, crisi)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tip">
+        I dati reali da yfinance catturano eventi storici reali che la simulazione non puo riprodurre.
+      </div>
+      <aside class="notes">
+        Il Moto Browniano Geometrico (GBM) è il modello più semplice per i prezzi azionari,
+        introdotto da Black-Scholes. I prezzi reali mostrano "fat tails" (eventi estremi
+        più frequenti del previsto da una distribuzione normale), mean reversion,
+        clustering di volatilità. Per esercizi didattici la simulazione va bene;
+        per decisioni reali si usano sempre dati storici reali.
+      </aside>
+    </section>
+
+    <!-- SLIDE 38 ─ The full pipeline flowchart -->
+    <section>
+      <h2>La Pipeline Completa</h2>
+      <div style="font-size:0.75em;margin:0.4em 0;">
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0.5em;align-items:center;">
+          <div style="background:rgba(26,188,156,0.15);border:2px solid #1ABC9C;border-radius:8px;padding:0.6em;text-align:center;">
+            <div style="color:#1ABC9C;font-size:1.5em;">📡</div>
+            <div style="color:#1ABC9C;font-weight:700;font-size:0.85em;">yfinance</div>
+            <div style="color:#bdc3c7;font-size:0.72em;margin-top:0.2em;">Download prezzi<br/>Yahoo Finance API</div>
+          </div>
+          <div style="text-align:center;color:#F39C12;font-size:1.8em;">→</div>
+          <div style="background:rgba(243,156,18,0.15);border:2px solid #F39C12;border-radius:8px;padding:0.6em;text-align:center;">
+            <div style="color:#F39C12;font-size:1.5em;">🐼</div>
+            <div style="color:#F39C12;font-weight:700;font-size:0.85em;">pandas</div>
+            <div style="color:#bdc3c7;font-size:0.72em;margin-top:0.2em;">Rendimenti, Sharpe<br/>Correlazioni</div>
+          </div>
+          <div style="text-align:center;color:#F39C12;font-size:1.8em;">→</div>
+          <div style="background:rgba(231,76,60,0.15);border:2px solid #E74C3C;border-radius:8px;padding:0.6em;text-align:center;">
+            <div style="color:#E74C3C;font-size:1.5em;">📊</div>
+            <div style="color:#E74C3C;font-weight:700;font-size:0.85em;">xlwings</div>
+            <div style="color:#bdc3c7;font-size:0.72em;margin-top:0.2em;">Formattazione<br/>Grafici, Formule</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5em;margin-top:0.5em;">
+          <div style="text-align:center;color:#F39C12;font-size:1.8em;">↓</div>
+          <div></div>
+          <div style="text-align:center;color:#F39C12;font-size:1.8em;">↓</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5em;">
+          <div style="background:rgba(44,62,80,0.8);border:2px solid #555;border-radius:8px;padding:0.6em;text-align:center;">
+            <div style="font-size:1.5em;">📗</div>
+            <div style="color:#ecf0f1;font-weight:700;font-size:0.85em;">Excel .xlsx</div>
+            <div style="color:#bdc3c7;font-size:0.72em;margin-top:0.2em;">Multi-foglio<br/>Protetto</div>
+          </div>
+          <div style="text-align:center;color:#F39C12;font-size:1.8em;display:flex;align-items:center;justify-content:center;">→</div>
+          <div style="background:rgba(231,76,60,0.15);border:2px solid #E74C3C;border-radius:8px;padding:0.6em;text-align:center;">
+            <div style="font-size:1.5em;">📄</div>
+            <div style="color:#E74C3C;font-weight:700;font-size:0.85em;">PDF</div>
+            <div style="color:#bdc3c7;font-size:0.72em;margin-top:0.2em;">Report cliente<br/>Professionale</div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        Questa è l'intera catena di valore. Dalla chiamata API al PDF pronto da inviare
+        al cliente in meno di 10 secondi. Il codice è riproducibile: eseguirlo di nuovo
+        domani produce lo stesso report ma con i dati aggiornati. Questo è l'obiettivo finale.
+      </aside>
+    </section>
+
+    <!-- SLIDE 39 ─ Error handling -->
+    <section class="compact">
+      <h2>Gestione degli Errori</h2>
+      <div class="two-col">
+        <div>
+          <h3>Download fallito</h3>
+          <pre><code class="python">import os, pickle
+from pathlib import Path
+
+CACHE = Path("cache/prezzi.pkl")
+
+def scarica_con_cache(tickers, period="5y"):
+    if CACHE.exists():
+        print("Carico da cache...")
+        with open(CACHE, "rb") as f:
+            return pickle.load(f)
+    try:
+        df = yf.download(tickers,
+                         period=period,
+                         progress=False)
+        CACHE.parent.mkdir(exist_ok=True)
+        with open(CACHE, "wb") as f:
+            pickle.dump(df, f)
+        return df
+    except Exception as e:
+        print(f"Errore download: {e}")
+        return None
+</code></pre>
+        </div>
+        <div>
+          <h3>Excel non disponibile</h3>
+          <pre><code class="python">def crea_workbook_sicuro():
+    try:
+        app = xw.App(visible=False)
+        return app, app.books.add()
+    except Exception as e:
+        print(f"Excel non disponibile: {e}")
+        print("Fallback: salvo solo i dati CSV")
+        return None, None
+
+# Degradazione graduale
+app, wb = crea_workbook_sicuro()
+if wb is None:
+    # Salva i dati anche senza Excel
+    stats.to_csv("stats_bianchi.csv")
+    prezzi.to_csv("prezzi_bianchi.csv")
+    print("Dati CSV salvati come fallback")
+</code></pre>
+        </div>
+      </div>
+      <aside class="notes">
+        Il caching con pickle è utile durante lo sviluppo: evita N chiamate API
+        mentre si testa la formattazione. In produzione si rimuove o si controlla
+        la data del file cache. La degradazione graduale (fallback su CSV) garantisce
+        che lo script produca sempre qualcosa di utile, anche se Excel non è disponibile.
+      </aside>
+    </section>
+
+    <!-- SLIDE 40 ─ When to use what -->
+    <section>
+      <h2>Quale Libreria Usare?</h2>
+      <div style="font-size:0.78em;margin-top:0.4em;">
+        <table>
+          <thead>
+            <tr>
+              <th>Situazione</th>
+              <th>Soluzione consigliata</th>
+              <th>Perche</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Server Linux, no Excel</td>
+              <td><strong style="color:#1ABC9C;">openpyxl</strong></td>
+              <td>Non richiede Excel installato</td>
+            </tr>
+            <tr>
+              <td>Analisi dati puri, no output Excel</td>
+              <td><strong style="color:#F39C12;">pandas</strong></td>
+              <td>Leggero, veloce, potente</td>
+            </tr>
+            <tr>
+              <td>Grafici reali Excel, formule live</td>
+              <td><strong style="color:#E74C3C;">xlwings</strong></td>
+              <td>Solo xlwings ha COM access completo</td>
+            </tr>
+            <tr>
+              <td>Protezione, VeryHidden, formulas hidden</td>
+              <td><strong style="color:#E74C3C;">xlwings</strong></td>
+              <td>openpyxl non supporta queste feature</td>
+            </tr>
+            <tr>
+              <td>Export PDF da Excel</td>
+              <td><strong style="color:#E74C3C;">xlwings</strong></td>
+              <td>ExportAsFixedFormat via COM</td>
+            </tr>
+            <tr>
+              <td>Report semplice, cross-platform</td>
+              <td><strong style="color:#1ABC9C;">openpyxl</strong></td>
+              <td>Più compatibile, nessuna dipendenza OS</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="tip" style="margin-top:0.6em;">
+          Questo corso usa xlwings perché i file devono essere <em>perfettamente identici</em>
+          ai file Excel che gli studenti aprono: grafici reali, formule live, protezione.
+        </div>
+      </div>
+      <aside class="notes">
+        La scelta non è "xlwings vs openpyxl": sono per scopi diversi.
+        openpyxl è ottimo per ambienti server (AWS Lambda, Django) dove Excel non c'è.
+        xlwings è per workstation Windows/Mac dove Excel è installato e si vuole
+        il controllo completo. pandas non produce Excel: è la libreria di analisi.
+      </aside>
+    </section>
+
+    <!-- SLIDE 41 ─ Takeaway Blocco 3 -->
+    <section class="center-slide">
+      <div class="section-divider">
+        <div class="section-badge">Takeaway &mdash; Blocco 3</div>
+        <h2 style="color:#E74C3C;">"Un report che prima richiedeva<br/>45 minuti, ora si genera in 5 secondi"</h2>
+        <div class="kpi-row" style="margin-top:1em;">
+          <div class="kpi" style="border-top-color:#1ABC9C;">
+            <span class="kpi-value" style="color:#1ABC9C;">5s</span>
+            <span class="kpi-label">Pipeline completa</span>
+          </div>
+          <div class="kpi">
+            <span class="kpi-value">0</span>
+            <span class="kpi-label">Errori copia-incolla</span>
+          </div>
+          <div class="kpi" style="border-top-color:#E74C3C;">
+            <span class="kpi-value" style="color:#E74C3C;">∞</span>
+            <span class="kpi-label">Riproducibilita</span>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        Messaggio finale del blocco 3: la pipeline è riproducibile. Ogni volta che
+        la esegui ottieni lo stesso report aggiornato. I 45 minuti manuali diventano
+        un click. Questo è il valore reale di Python per chi lavora in finance.
+      </aside>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         BLOCCO 4: CHIUSURA  (slides 42–44)
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- SLIDE 42 ─ Cheatsheet recap -->
+    <section>
+      <h2>Cheatsheet &ndash; Funzioni Chiave</h2>
+      <table class="cheat" style="font-size:0.68em;">
+        <thead>
+          <tr><th>Operazione</th><th>Codice</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Download prezzi</td><td><code>yf.download("RACE.MI", period="5y")</code></td></tr>
+          <tr><td>Download multiplo</td><td><code>yf.download(["MSFT","GOOGL"], period="5y")</code></td></tr>
+          <tr><td>Rendimenti giornalieri</td><td><code>df.pct_change().dropna()</code></td></tr>
+          <tr><td>Rendimento annualizzato</td><td><code>rend.mean() * 252</code></td></tr>
+          <tr><td>Volatilita annualizzata</td><td><code>rend.std() * np.sqrt(252)</code></td></tr>
+          <tr><td>Matrice correlazione</td><td><code>rend.corr()</code></td></tr>
+          <tr><td>Leggi Excel in pandas</td><td><code>pd.read_excel("file.xlsx", sheet_name="...")</code></td></tr>
+          <tr><td>Scrivi DataFrame in Excel</td><td><code>ws.range("A1").options(index=True).value = df</code></td></tr>
+          <tr><td>Imposta formula italiana</td><td><code>set_formula(rng, "=SOMMA(A1:A10)")</code></td></tr>
+          <tr><td>Formato numero italiano</td><td><code>rng.api.NumberFormatLocal = "#.##0,00 €"</code></td></tr>
+          <tr><td>Proteggi foglio</td><td><code>protect_sheet(ws, password="xxx")</code></td></tr>
+          <tr><td>Export PDF</td><td><code>wb.api.ExportAsFixedFormat(0, "file.pdf")</code></td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.65em;color:#bdc3c7;margin-top:0.5em;">
+        Cheatsheet completo: <a href="cheatsheet.html">cheatsheet.html</a>
+      </p>
+      <aside class="notes">
+        Invitare gli studenti a salvare questa slide o scaricare il cheatsheet.html
+        dalla cartella della lezione. Distribuire anche cheatsheet.pdf.
+      </aside>
+    </section>
+
+    <!-- SLIDE 43 ─ Next steps -->
+    <section>
+      <h2>Dove andare da qui</h2>
+      <div class="two-col">
+        <div>
+          <h3>Prossimi passi</h3>
+          <ul>
+            <li>Automatizzare il report trimestrale Bianchi</li>
+            <li>Aggiungere alert via email (smtplib)</li>
+            <li>Scheduling con Windows Task Scheduler</li>
+            <li>Dashboard web con Streamlit</li>
+            <li>API Bloomberg / Refinitiv (livello professionale)</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Python vs VBA</h3>
+          <table style="font-size:0.7em;">
+            <thead><tr><th></th><th>Python</th><th>VBA</th></tr></thead>
+            <tbody>
+              <tr><td>Librerie esterne</td><td class="ok">numpy, scipy, ML</td><td class="no">quasi nessuna</td></tr>
+              <tr><td>Velocita sviluppo</td><td class="ok">alta</td><td>media</td></tr>
+              <tr><td>Portabilita</td><td class="ok">cross-platform</td><td class="no">solo Windows</td></tr>
+              <tr><td>Integrato in Excel</td><td class="no">no</td><td class="ok">si</td></tr>
+              <tr><td>Futuro</td><td class="ok">in crescita</td><td>in declino</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <aside class="notes">
+        VBA non è morto: ci sono milioni di file VBA in produzione. Ma per nuovi sviluppi
+        Python è chiaramente preferibile per la ricchezza dell'ecosistema.
+        Microsoft sta lavorando a Python in Excel (già disponibile in Microsoft 365 Insider).
+        Il futuro è Python, ma sapere VBA è ancora utile per mantenere codice legacy.
+      </aside>
+    </section>
+
+    <!-- SLIDE 44 ─ Q&A -->
+    <section class="center-slide">
+      <div class="title-slide-main" style="text-align:center;">
+        <h1 style="font-size:3em;border:none;">Domande?</h1>
+        <p class="subtitle" style="font-size:1.2em;">Turin Wealth Advisory &ndash; Lezione Python per Excel</p>
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.15);margin:1em auto;width:50%;" />
+        <div style="display:flex;gap:2em;justify-content:center;font-size:0.65em;flex-wrap:wrap;">
+          <div>
+            <div style="color:#1ABC9C;font-weight:700;">MATERIALI</div>
+            <div style="color:#bdc3c7;margin-top:0.2em;">Cartella <code>/lezione/</code></div>
+          </div>
+          <div>
+            <div style="color:#F39C12;font-weight:700;">CHEATSHEET</div>
+            <div style="color:#bdc3c7;margin-top:0.2em;"><code>cheatsheet.html</code></div>
+          </div>
+          <div>
+            <div style="color:#E74C3C;font-weight:700;">ESERCIZI</div>
+            <div style="color:#bdc3c7;margin-top:0.2em;">Script in <code>scripts/</code></div>
+          </div>
+        </div>
+        <p style="font-size:0.55em;color:#7f8c8d;margin-top:1.5em;">
+          Facolta di Economia &ndash; Universita degli Studi di Torino
+        </p>
+      </div>
+      <aside class="notes">
+        Raccogliere le domande. Se rimane tempo, fare live coding ES10 completo
+        (pipeline end-to-end) proiettando lo schermo del docente.
+        Ricordare di distribuire: scripts/requirements.txt, cheatsheet.pdf, slide PDF.
+      </aside>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         APPENDICI  (slides 45–48)
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- SLIDE 45 ─ Appendice A: Errori comuni -->
+    <section>
+      <div class="section-badge">Appendice A</div>
+      <h2>Errori Comuni e Soluzioni</h2>
+      <table style="font-size:0.64em;">
+        <thead>
+          <tr><th>Errore / Sintomo</th><th>Causa</th><th>Soluzione</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>=@SOMMA(A1:A10)</code> in Excel</td>
+            <td>Uso di <code>FormulaLocal</code></td>
+            <td>Usare <code>set_formula()</code> con <code>Formula2Local</code></td>
+          </tr>
+          <tr>
+            <td>Percentuale "04%" invece di "3,5%"</td>
+            <td><code>number_format = "0.0%"</code></td>
+            <td><code>api.NumberFormatLocal = "0,0%"</code></td>
+          </tr>
+          <tr>
+            <td>Formula visibile nella barra</td>
+            <td>Foglio non protetto</td>
+            <td>Chiamare <code>protect_sheet()</code> dopo <code>FormulaHidden</code></td>
+          </tr>
+          <tr>
+            <td><code>KeyError: 'Adj Close'</code></td>
+            <td>yfinance nuovo formato (v0.2+)</td>
+            <td><code>raw["Adj Close"]</code> oppure <code>auto_adjust=True</code></td>
+          </tr>
+          <tr>
+            <td><code>AttributeError: Formula2Local</code></td>
+            <td>Excel &lt; 2019</td>
+            <td>Il try/except in <code>set_formula()</code> gestisce il fallback</td>
+          </tr>
+          <tr>
+            <td>DataFrame con MultiIndex su titolo singolo</td>
+            <td>yfinance aggiunge sempre MultiIndex</td>
+            <td><code>df.droplevel(1, axis=1)</code> oppure <code>df.squeeze()</code></td>
+          </tr>
+          <tr>
+            <td>Celle sovrapposte nel foglio Excel</td>
+            <td>Posizione fissa nel codice</td>
+            <td>Calcolare posizioni con <code>table_start + len(data) + 2</code></td>
+          </tr>
+          <tr>
+            <td><code>pywintypes.com_error</code></td>
+            <td>Excel gia aperto con file bloccato</td>
+            <td>Chiudere Excel o usare <code>app.kill()</code> e riaprire</td>
+          </tr>
+        </tbody>
+      </table>
+      <aside class="notes">
+        Questa tabella copre l'80% dei problemi che gli studenti incontrano.
+        Distribuirla come PDF separato o inserirla nel cheatsheet.
+      </aside>
+    </section>
+
+    <!-- SLIDE 46 ─ Appendice B: Ticker format -->
+    <section>
+      <div class="section-badge">Appendice B</div>
+      <h2>Formato Ticker yfinance</h2>
+      <table style="font-size:0.7em;">
+        <thead>
+          <tr><th>Mercato</th><th>Suffisso</th><th>Esempi</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>USA (NYSE/Nasdaq)</td>
+            <td><em>nessuno</em></td>
+            <td><code>MSFT, GOOGL, AAPL, TSLA</code></td>
+          </tr>
+          <tr>
+            <td>Italia (Borsa Italiana)</td>
+            <td><code>.MI</code></td>
+            <td><code>TRN.MI, RACE.MI, ENI.MI, ISP.MI</code></td>
+          </tr>
+          <tr>
+            <td>Francia (Euronext Paris)</td>
+            <td><code>.PA</code></td>
+            <td><code>MC.PA, OR.PA, TTE.PA, BNP.PA</code></td>
+          </tr>
+          <tr>
+            <td>Germania (XETRA)</td>
+            <td><code>.DE</code></td>
+            <td><code>SAP.DE, SIE.DE, BMW.DE</code></td>
+          </tr>
+          <tr>
+            <td>Paesi Bassi (Euronext AMS)</td>
+            <td><code>.AS</code></td>
+            <td><code>IWDA.AS, VWRL.AS, ASML.AS</code></td>
+          </tr>
+          <tr>
+            <td>UK (London Stock Exchange)</td>
+            <td><code>.L</code></td>
+            <td><code>SHEL.L, HSBA.L, BP.L</code></td>
+          </tr>
+          <tr>
+            <td>Indici</td>
+            <td><code>^</code> prefisso</td>
+            <td><code>^GSPC (S&amp;P 500), ^FCHI (CAC40), ^FTSE</code></td>
+          </tr>
+          <tr>
+            <td>ETF su Borsa Italiana</td>
+            <td><code>.MI</code></td>
+            <td><code>CSSPX.MI, VEUR.MI, EMIM.MI</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="tip" style="margin-top:0.5em;font-size:0.72em;">
+        Per trovare il ticker corretto: cercare su <strong>finance.yahoo.com</strong>
+        o <strong>justETF.com</strong> e copiare il simbolo esatto.
+      </div>
+      <aside class="notes">
+        Il problema più comune degli studenti: usare il ticker Bloomberg invece di
+        quello Yahoo Finance. Bloomberg usa formato diverso (es. TRN IM invece di TRN.MI).
+        Se yf.download() restituisce un DataFrame vuoto, quasi sempre è un problema di ticker.
+      </aside>
+    </section>
+
+    <!-- SLIDE 47 ─ Appendice C: xlwings vs openpyxl -->
+    <section>
+      <div class="section-badge">Appendice C</div>
+      <h2>xlwings vs openpyxl &ndash; Confronto Dettagliato</h2>
+      <table style="font-size:0.67em;">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>xlwings</th>
+            <th>openpyxl</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Excel richiesto</td><td class="no">Si (Windows/Mac)</td><td class="ok">No</td></tr>
+          <tr><td>Grafici nativi Excel</td><td class="ok">Completi</td><td class="no">Limitati (no COM)</td></tr>
+          <tr><td>Formule live calcolate</td><td class="ok">Si (Excel calcola)</td><td class="no">No (solo testo)</td></tr>
+          <tr><td>Protezione avanzata</td><td class="ok">VeryHidden, FormulaHidden</td><td class="no">Solo base</td></tr>
+          <tr><td>Export PDF</td><td class="ok">ExportAsFixedFormat</td><td class="no">No nativo</td></tr>
+          <tr><td>Macro VBA</td><td class="ok">Eseguibili</td><td class="no">No</td></tr>
+          <tr><td>Velocita su file grandi</td><td>Media (COM overhead)</td><td class="ok">Alta</td></tr>
+          <tr><td>Linux / CI/CD</td><td class="no">No (senza Excel)</td><td class="ok">Si</td></tr>
+          <tr><td>DataFrame integration</td><td class="ok">Nativa, bidirezionale</td><td>Manuale</td></tr>
+          <tr><td>Installazione</td><td><code>pip install xlwings</code></td><td><code>pip install openpyxl</code></td></tr>
+          <tr><td>Licenza</td><td class="ok">BSD (gratis)</td><td class="ok">MIT (gratis)</td></tr>
+        </tbody>
+      </table>
+      <aside class="notes">
+        Nessuna delle due è "migliore": dipende dal contesto.
+        Per automazione server o cloud, openpyxl. Per controllo completo di Excel
+        su workstation, xlwings. Molti progetti professionali usano entrambe:
+        openpyxl per leggere/parsare file, xlwings per generare il report finale.
+      </aside>
+    </section>
+
+    <!-- SLIDE 48 ─ Appendice D: Risorse -->
+    <section>
+      <div class="section-badge">Appendice D</div>
+      <h2>Risorse e Link Utili</h2>
+      <div class="two-col">
+        <div>
+          <h3>Documentazione ufficiale</h3>
+          <ul style="font-size:0.75em;">
+            <li><strong>yfinance</strong>: <a href="https://ranaroussi.github.io/yfinance/">ranaroussi.github.io/yfinance/</a></li>
+            <li><strong>pandas</strong>: <a href="https://pandas.pydata.org/docs/">pandas.pydata.org/docs/</a></li>
+            <li><strong>xlwings</strong>: <a href="https://docs.xlwings.org/">docs.xlwings.org</a></li>
+            <li><strong>NumPy</strong>: <a href="https://numpy.org/doc/">numpy.org/doc/</a></li>
+          </ul>
+          <h3 style="margin-top:0.7em;">Dati finanziari</h3>
+          <ul style="font-size:0.75em;">
+            <li>Yahoo Finance: <a href="https://finance.yahoo.com">finance.yahoo.com</a></li>
+            <li>justETF: <a href="https://www.justetf.com/it/">justetf.com/it/</a></li>
+            <li>Borsa Italiana: <a href="https://www.borsaitaliana.it">borsaitaliana.it</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Libri consigliati</h3>
+          <ul style="font-size:0.75em;">
+            <li><em>Python for Finance</em> &ndash; Yves Hilpisch (O'Reilly)</li>
+            <li><em>Pandas Cookbook</em> &ndash; Matt Harrison</li>
+            <li><em>Automate the Boring Stuff</em> &ndash; Al Sweigart (gratis online)</li>
+          </ul>
+          <h3 style="margin-top:0.7em;">Materiali del corso</h3>
+          <ul style="font-size:0.75em;">
+            <li>Tutti gli script: <code>scripts/</code></li>
+            <li>Configurazione: <code>tw_config.py</code></li>
+            <li>Utilita: <code>tw_utils.py</code></li>
+            <li>Cheatsheet: <code>lezione/cheatsheet.html</code></li>
+          </ul>
+        </div>
+      </div>
+      <aside class="notes">
+        "Python for Finance" di Hilpisch è il riferimento standard per chi vuole
+        andare oltre: opzioni, derivati, machine learning in finanza.
+        "Automate the Boring Stuff" è gratuito online ed è ottimo punto di partenza
+        per chi è nuovo a Python.
+      </aside>
+    </section>
+
+  </div><!-- /.slides -->
+</div><!-- /.reveal -->
+
+
+<!-- ─── Reveal.js scripts ──────────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/notes/notes.js"></script>
+
+<script>
+  Reveal.initialize({
+    // ── Navigation ──────────────────────────────────────────────────────────
+    hash:           true,   // URL fragment navigation (#/slideN)
+    history:        true,
+    keyboard:       true,
+    overview:       true,
+    loop:           false,
+    rtl:            false,
+
+    // ── Display ─────────────────────────────────────────────────────────────
+    width:          1280,
+    height:         720,
+    margin:         0.06,
+    minScale:       0.2,
+    maxScale:       2.0,
+
+    slideNumber:    'c/t',   // current/total
+    showSlideNumber: 'all',
+
+    // ── Transition ──────────────────────────────────────────────────────────
+    transition:      'slide',   // none/fade/slide/convex/concave/zoom
+    transitionSpeed: 'fast',
+    backgroundTransition: 'fade',
+
+    // ── View ────────────────────────────────────────────────────────────────
+    center:         false,  // don't vertically center (left-align is better for code)
+    autoPlayMedia:  false,
+    preloadIframes: null,
+
+    // ── Plugins ─────────────────────────────────────────────────────────────
+    plugins: [
+      RevealHighlight,
+      RevealNotes,
+    ],
+
+    // ── Highlight.js ────────────────────────────────────────────────────────
+    highlight: {
+      highlightOnLoad: true,
+    },
+  });
+</script>
+
+</body>
+</html>

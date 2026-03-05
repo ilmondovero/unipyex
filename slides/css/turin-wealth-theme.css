@@ -1,0 +1,751 @@
+/**
+ * Turin Wealth Advisory - Reveal.js Custom Theme
+ * Colors: Dark Blue #2C3E50 | Coral #E74C3C | Teal #1ABC9C | Gold #F39C12
+ */
+
+/* ─── RESET & BASE ──────────────────────────────────────────────────────────── */
+.reveal-viewport {
+  background: #2C3E50;
+}
+
+.reveal {
+  font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+  font-size: 36px;
+  font-weight: normal;
+  color: #FFFFFF;
+}
+
+/* ─── SLIDE BACKGROUNDS ─────────────────────────────────────────────────────── */
+.reveal .slides section,
+.reveal .slides section > section {
+  background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+  padding: 20px 40px;
+  border-radius: 0;
+  box-sizing: border-box;
+}
+
+/* Title slides have a richer gradient */
+.reveal .slides section.title-slide {
+  background: linear-gradient(160deg, #1a252f 0%, #2C3E50 50%, #34495E 100%);
+}
+
+/* ─── HEADINGS ───────────────────────────────────────────────────────────────── */
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+  margin: 0 0 0.4em 0;
+  font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  word-wrap: break-word;
+  text-shadow: none;
+}
+
+.reveal h1 {
+  color: #FFFFFF;
+  font-size: 2.0em;
+  border-bottom: 3px solid #E74C3C;
+  padding-bottom: 0.15em;
+  margin-bottom: 0.35em;
+}
+
+.reveal h2 {
+  color: #F39C12;
+  font-size: 1.45em;
+  border-bottom: 2px solid rgba(243, 156, 18, 0.4);
+  padding-bottom: 0.1em;
+  margin-bottom: 0.3em;
+}
+
+.reveal h3 {
+  color: #1ABC9C;
+  font-size: 1.2em;
+  margin-bottom: 0.35em;
+}
+
+.reveal h4 {
+  color: #F39C12;
+  font-size: 1em;
+  margin-bottom: 0.3em;
+}
+
+/* ─── BODY TEXT ─────────────────────────────────────────────────────────────── */
+.reveal p {
+  color: #FFFFFF;
+  font-size: 0.8em;
+  line-height: 1.45;
+  margin: 0 0 0.4em 0;
+}
+
+.reveal strong {
+  color: #F39C12;
+  font-weight: 700;
+}
+
+.reveal em {
+  color: #1ABC9C;
+  font-style: italic;
+}
+
+/* ─── LISTS ─────────────────────────────────────────────────────────────────── */
+.reveal ul,
+.reveal ol {
+  display: block;
+  margin: 0 0 0.4em 0;
+  padding-left: 1.2em;
+  font-size: 0.8em;
+  color: #FFFFFF;
+  line-height: 1.4;
+}
+
+.reveal ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.reveal ul > li {
+  padding-left: 1.4em;
+  position: relative;
+  margin-bottom: 0.3em;
+}
+
+.reveal ul > li::before {
+  content: "▸";
+  color: #F39C12;
+  font-size: 0.9em;
+  position: absolute;
+  left: 0;
+  top: 0.05em;
+}
+
+.reveal ul ul > li::before {
+  content: "◦";
+  color: #1ABC9C;
+}
+
+.reveal ol {
+  counter-reset: ol-counter;
+  list-style: none;
+  padding-left: 0;
+}
+
+.reveal ol > li {
+  padding-left: 1.8em;
+  position: relative;
+  margin-bottom: 0.3em;
+  counter-increment: ol-counter;
+}
+
+.reveal ol > li::before {
+  content: counter(ol-counter) ".";
+  color: #F39C12;
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.reveal li li {
+  font-size: 0.92em;
+}
+
+/* ─── CODE ───────────────────────────────────────────────────────────────────── */
+.reveal pre {
+  display: block;
+  position: relative;
+  width: 100%;
+  margin: 0.35em auto;
+  text-align: left;
+  font-size: 0.55em;
+  background: #1a252f;
+  border: 1px solid #1ABC9C;
+  border-left: 4px solid #1ABC9C;
+  border-radius: 6px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.reveal pre code {
+  display: block;
+  padding: 0.5em 0.8em;
+  overflow: auto;
+  max-height: 500px;
+  background: #34495E;
+  color: #1ABC9C;
+  font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+  font-size: 0.95em;
+  line-height: 1.3;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  border-radius: 0;
+}
+
+.reveal code {
+  font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+  font-size: 0.85em;
+  background: rgba(231, 76, 60, 0.25);
+  color: #E74C3C;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  border: 1px solid rgba(231, 76, 60, 0.35);
+}
+
+.reveal pre code.hljs {
+  background: #34495E;
+  color: #ecf0f1;
+}
+
+/* ─── TABLES ─────────────────────────────────────────────────────────────────── */
+.reveal table {
+  margin: 0.3em auto;
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  font-size: 0.72em;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+.reveal table thead tr {
+  background: #2C3E50;
+  border-bottom: 3px solid #F39C12;
+}
+
+.reveal table thead th {
+  color: #F39C12;
+  font-weight: 700;
+  padding: 0.55em 0.9em;
+  text-align: left;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 0.88em;
+  border: none;
+}
+
+.reveal table tbody tr:nth-child(odd) {
+  background: rgba(52, 73, 94, 0.8);
+}
+
+.reveal table tbody tr:nth-child(even) {
+  background: rgba(44, 62, 80, 0.6);
+}
+
+.reveal table tbody tr:hover {
+  background: rgba(26, 188, 156, 0.15);
+}
+
+.reveal table tbody td {
+  color: #ecf0f1;
+  padding: 0.45em 0.9em;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  vertical-align: middle;
+}
+
+.reveal table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ─── LINKS ─────────────────────────────────────────────────────────────────── */
+.reveal a {
+  color: #1ABC9C;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(26, 188, 156, 0.4);
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.reveal a:hover {
+  color: #F39C12;
+  border-bottom-color: #F39C12;
+}
+
+/* ─── BLOCKQUOTE ─────────────────────────────────────────────────────────────── */
+.reveal blockquote {
+  display: block;
+  position: relative;
+  width: 90%;
+  margin: 0.5em auto;
+  padding: 0.8em 1.2em;
+  background: rgba(26, 188, 156, 0.1);
+  border-left: 5px solid #1ABC9C;
+  border-radius: 0 6px 6px 0;
+  font-style: italic;
+  color: #ecf0f1;
+  font-size: 0.85em;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+}
+
+.reveal blockquote::before {
+  content: '"';
+  font-size: 3em;
+  color: #1ABC9C;
+  position: absolute;
+  top: -0.2em;
+  left: 0.15em;
+  opacity: 0.4;
+  font-family: Georgia, serif;
+}
+
+/* ─── SLIDES: PROGRESS & CONTROLS ───────────────────────────────────────────── */
+.reveal .controls {
+  color: #F39C12;
+}
+
+.reveal .progress {
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+}
+
+.reveal .progress span {
+  background: linear-gradient(90deg, #E74C3C, #F39C12);
+  transition: width 0.4s ease;
+}
+
+.reveal .slide-number {
+  background: rgba(44, 62, 80, 0.8);
+  color: #F39C12;
+  font-size: 0.7em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+/* ─── FRAGMENTS ─────────────────────────────────────────────────────────────── */
+.reveal .fragment {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.reveal .fragment.visible {
+  opacity: 1;
+}
+
+.reveal .fragment.highlight-current-gold.current-fragment {
+  color: #F39C12;
+}
+
+/* ─── CUSTOM UTILITY CLASSES ─────────────────────────────────────────────────── */
+
+/* .highlight — gold accent text */
+.reveal .highlight,
+.reveal .highlight-text {
+  color: #F39C12 !important;
+  font-weight: 700;
+}
+
+/* .demo — teal left-border box (for live demos) */
+.reveal .demo {
+  background: rgba(26, 188, 156, 0.08);
+  border-left: 5px solid #1ABC9C;
+  border-radius: 0 8px 8px 0;
+  padding: 0.5em 0.9em;
+  margin: 0.35em 0;
+  font-size: 0.78em;
+  position: relative;
+}
+
+.reveal .demo::before {
+  content: "DEMO";
+  display: inline-block;
+  background: #1ABC9C;
+  color: #2C3E50;
+  font-size: 0.65em;
+  font-weight: 700;
+  padding: 0.15em 0.5em;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.4em;
+}
+
+/* .exercise — coral left-border box (for exercises) */
+.reveal .exercise {
+  background: rgba(231, 76, 60, 0.08);
+  border-left: 5px solid #E74C3C;
+  border-radius: 0 8px 8px 0;
+  padding: 0.5em 0.9em;
+  margin: 0.35em 0;
+  font-size: 0.78em;
+  position: relative;
+}
+
+.reveal .exercise::before {
+  content: "ESERCIZIO";
+  display: inline-block;
+  background: #E74C3C;
+  color: #FFFFFF;
+  font-size: 0.65em;
+  font-weight: 700;
+  padding: 0.15em 0.5em;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.4em;
+}
+
+/* .tip — gold background info box */
+.reveal .tip {
+  background: rgba(243, 156, 18, 0.12);
+  border: 1px solid rgba(243, 156, 18, 0.4);
+  border-left: 5px solid #F39C12;
+  border-radius: 0 8px 8px 0;
+  padding: 0.5em 0.9em;
+  margin: 0.35em 0;
+  font-size: 0.78em;
+  color: #fef9e7;
+}
+
+.reveal .tip::before {
+  content: "NOTA";
+  display: inline-block;
+  background: #F39C12;
+  color: #2C3E50;
+  font-size: 0.65em;
+  font-weight: 700;
+  padding: 0.15em 0.5em;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.4em;
+}
+
+/* .warn — red warning box */
+.reveal .warn {
+  background: rgba(231, 76, 60, 0.12);
+  border: 1px solid rgba(231, 76, 60, 0.45);
+  border-left: 5px solid #E74C3C;
+  border-radius: 0 8px 8px 0;
+  padding: 0.5em 0.9em;
+  margin: 0.35em 0;
+  font-size: 0.78em;
+}
+
+.reveal .warn::before {
+  content: "ATTENZIONE";
+  display: inline-block;
+  background: #E74C3C;
+  color: #fff;
+  font-size: 0.65em;
+  font-weight: 700;
+  padding: 0.15em 0.5em;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.4em;
+}
+
+/* ─── TWO-COLUMN LAYOUT ──────────────────────────────────────────────────────── */
+.reveal .two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2em;
+  align-items: start;
+  font-size: 0.85em;
+}
+
+.reveal .two-col-wide {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.2em;
+  align-items: start;
+  font-size: 0.85em;
+}
+
+.reveal .col {
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  padding: 0.8em 1em;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ─── KPI / METRIC BOXES ─────────────────────────────────────────────────────── */
+.reveal .kpi-row {
+  display: flex;
+  gap: 1em;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 0.5em 0;
+}
+
+.reveal .kpi {
+  flex: 1;
+  min-width: 140px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 0.8em;
+  text-align: center;
+  border-top: 3px solid #F39C12;
+}
+
+.reveal .kpi .kpi-value {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: #F39C12;
+  display: block;
+  line-height: 1.1;
+}
+
+.reveal .kpi .kpi-label {
+  font-size: 0.6em;
+  color: #bdc3c7;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 0.3em;
+  display: block;
+}
+
+/* ─── STEP/FLOW BOXES ───────────────────────────────────────────────────────── */
+.reveal .steps {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 0.5em 0;
+  font-size: 0.75em;
+}
+
+.reveal .step {
+  background: rgba(26, 188, 156, 0.15);
+  border: 1px solid #1ABC9C;
+  border-radius: 8px;
+  padding: 0.5em 0.8em;
+  text-align: center;
+  color: #fff;
+  min-width: 90px;
+}
+
+.reveal .step .step-num {
+  display: block;
+  font-size: 1.4em;
+  font-weight: 700;
+  color: #1ABC9C;
+  line-height: 1;
+}
+
+.reveal .step-arrow {
+  color: #F39C12;
+  font-size: 1.4em;
+  font-weight: 700;
+}
+
+/* ─── COMPARISON TABLE (OK vs WRONG) ────────────────────────────────────────── */
+.reveal .ok {
+  color: #2ecc71;
+  font-weight: 700;
+}
+
+.reveal .no {
+  color: #E74C3C;
+  font-weight: 700;
+}
+
+/* ─── TITLE SLIDE SPECIAL ─────────────────────────────────────────────────────── */
+.reveal .title-slide-main {
+  text-align: center;
+}
+
+.reveal .title-slide-main h1 {
+  font-size: 2.4em;
+  border: none;
+  margin-bottom: 0.1em;
+}
+
+.reveal .company-badge {
+  display: inline-block;
+  background: linear-gradient(90deg, #E74C3C, #F39C12);
+  color: #fff;
+  font-size: 0.55em;
+  font-weight: 700;
+  padding: 0.3em 1.2em;
+  border-radius: 30px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0.4em 0 0.8em 0;
+}
+
+.reveal .subtitle {
+  color: #1ABC9C;
+  font-size: 1.1em;
+  margin: 0.3em 0;
+}
+
+.reveal .meta {
+  color: #bdc3c7;
+  font-size: 0.65em;
+  margin-top: 0.8em;
+  letter-spacing: 0.05em;
+}
+
+/* ─── SECTION DIVIDER SLIDES ─────────────────────────────────────────────────── */
+.reveal .section-divider {
+  text-align: center;
+}
+
+.reveal .section-divider h2 {
+  font-size: 2em;
+  border: none;
+  color: #FFFFFF;
+  margin-bottom: 0.2em;
+}
+
+.reveal .section-badge {
+  display: inline-block;
+  background: rgba(231, 76, 60, 0.2);
+  border: 2px solid #E74C3C;
+  color: #E74C3C;
+  font-size: 0.6em;
+  font-weight: 700;
+  padding: 0.3em 1.2em;
+  border-radius: 30px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.6em;
+}
+
+/* ─── CHEATSHEET TABLE ───────────────────────────────────────────────────────── */
+.reveal table.cheat th {
+  font-size: 0.75em;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.reveal table.cheat td {
+  font-size: 0.72em;
+  padding: 0.35em 0.7em;
+}
+
+.reveal table.cheat td code {
+  font-size: 0.88em;
+  white-space: nowrap;
+}
+
+/* ─── FOOTER / SLIDE BRANDING ─────────────────────────────────────────────────── */
+.reveal .slide-footer {
+  position: absolute;
+  bottom: 12px;
+  right: 20px;
+  font-size: 0.42em;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.06em;
+}
+
+/* ─── RESPONSIVE / OVERFLOW SAFETY ───────────────────────────────────────────── */
+.reveal img {
+  max-width: 100%;
+  max-height: 60vh;
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.reveal section {
+  overflow: hidden;
+}
+
+/* ─── SCROLLABLE CODE BLOCKS (tall snippets) ─────────────────────────────────── */
+.reveal pre.scroll code {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+/* ─── COMPACT SLIDE VARIANT ──────────────────────────────────────────────────── */
+.reveal .slides section.compact h2 {
+  font-size: 1.15em;
+  margin-bottom: 0.15em;
+  padding-bottom: 0.08em;
+}
+.reveal .slides section.compact h3 {
+  font-size: 0.95em;
+  margin-bottom: 0.15em;
+}
+.reveal .slides section.compact p {
+  font-size: 0.68em;
+  margin-bottom: 0.2em;
+  line-height: 1.3;
+}
+.reveal .slides section.compact ul,
+.reveal .slides section.compact ol {
+  font-size: 0.68em;
+  line-height: 1.25;
+  margin-bottom: 0.2em;
+}
+.reveal .slides section.compact ul > li {
+  margin-bottom: 0.15em;
+}
+.reveal .slides section.compact pre {
+  font-size: 0.45em;
+  margin: 0.2em auto;
+}
+.reveal .slides section.compact pre code {
+  max-height: 520px;
+  line-height: 1.2;
+  padding: 0.35em 0.6em;
+}
+/* Slides with 2+ code blocks: share vertical space */
+.reveal .slides section.compact pre ~ pre code {
+  max-height: 200px;
+}
+.reveal .slides section.compact pre:has(~ pre) code {
+  max-height: 200px;
+}
+.reveal .slides section.compact .tip,
+.reveal .slides section.compact .demo,
+.reveal .slides section.compact .exercise,
+.reveal .slides section.compact .warn {
+  font-size: 0.65em;
+  padding: 0.3em 0.6em;
+  margin: 0.2em 0;
+}
+.reveal .slides section.compact table {
+  font-size: 0.6em;
+  margin: 0.2em auto;
+}
+.reveal .slides section.compact table thead th,
+.reveal .slides section.compact table tbody td {
+  padding: 0.3em 0.6em;
+}
+.reveal .slides section.compact .two-col {
+  gap: 0.6em;
+  font-size: 0.9em;
+}
+.reveal .slides section.compact .section-badge {
+  font-size: 0.5em;
+  padding: 0.2em 0.8em;
+  margin-bottom: 0.3em;
+}
+
+/* ─── HLJS OVERRIDES (monokai on dark bg) ────────────────────────────────────── */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+  color: #E74C3C;
+}
+
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-attribute,
+.hljs-literal,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type {
+  color: #F39C12;
+}
+
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion,
+.hljs-meta {
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+.hljs-number,
+.hljs-addition,
+.hljs-bullet {
+  color: #1ABC9C;
+}

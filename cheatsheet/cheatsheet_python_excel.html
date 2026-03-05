@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python per Excel – Cheatsheet | Turin Wealth Advisory</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:  #2C3E50;
+    --red:   #E74C3C;
+    --teal:  #1ABC9C;
+    --gold:  #F39C12;
+    --light: #F8F9FA;
+    --muted: #7F8C8D;
+    --border:#DEE2E6;
+    --code-bg:#1E2A36;
+    --code-fg:#E8F4F8;
+    --gap: 10px;
+    --radius: 6px;
+  }
+
+  body {
+    font-family: Calibri, system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    line-height: 1.45;
+    background: #EAECEF;
+    color: #212529;
+  }
+
+  /* ── Page wrapper ── */
+  .page {
+    max-width: 1100px;
+    margin: 18px auto;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,.15);
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--navy);
+    color: #fff;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--teal), #16A085);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #fff;
+    flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,.25);
+  }
+
+  .header-text h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: .5px;
+  }
+
+  .header-text .sub {
+    font-size: 11px;
+    color: rgba(255,255,255,.65);
+    margin-top: 1px;
+  }
+
+  .header-badges {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .badge {
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 12px;
+    padding: 2px 9px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .4px;
+  }
+
+  .badge.teal   { background: rgba(26,188,156,.25); border-color: var(--teal); }
+  .badge.gold   { background: rgba(243,156,18,.25);  border-color: var(--gold); }
+  .badge.red    { background: rgba(231,76,60,.25);   border-color: var(--red); }
+
+  /* ── Toolbar strip ── */
+  .toolbar {
+    background: var(--navy);
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding: 5px 22px;
+    display: flex;
+    gap: 16px;
+    font-size: 10px;
+    color: rgba(255,255,255,.55);
+  }
+
+  .toolbar span { display: flex; align-items: center; gap: 4px; }
+  .toolbar .dot {
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+  }
+  .dot-teal { background: var(--teal); }
+  .dot-gold { background: var(--gold); }
+  .dot-red  { background: var(--red); }
+
+  /* ── Grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--gap);
+    padding: var(--gap) 14px;
+  }
+
+  /* ── Section card ── */
+  .section {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .section-header {
+    padding: 7px 11px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: 700;
+    font-size: 11.5px;
+    letter-spacing: .3px;
+    color: #fff;
+  }
+
+  .section-header .num {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    background: rgba(255,255,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .sh-navy   { background: var(--navy); }
+  .sh-teal   { background: var(--teal); }
+  .sh-red    { background: var(--red); }
+  .sh-gold   { background: var(--gold); }
+  .sh-purple { background: #8E44AD; }
+  .sh-green  { background: #27AE60; }
+
+  .section-body {
+    padding: 8px 10px;
+    flex: 1;
+    background: #fff;
+  }
+
+  /* ── Code block ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 4px;
+    padding: 7px 9px;
+    margin: 4px 0;
+    overflow-x: auto;
+  }
+
+  pre, code {
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', 'Courier New', monospace;
+    font-size: 10.5px;
+    line-height: 1.55;
+    color: var(--code-fg);
+  }
+
+  /* Syntax highlight */
+  .kw  { color: #C792EA; }   /* keywords: import, def, for */
+  .fn  { color: #82AAFF; }   /* function calls */
+  .str { color: #C3E88D; }   /* strings */
+  .cm  { color: #546E7A; font-style: italic; }  /* comments */
+  .num { color: #F78C6C; }   /* numbers */
+  .op  { color: #89DDFF; }   /* operators */
+  .cls { color: #FFCB6B; }   /* class names */
+
+  /* ── Sub-section label ── */
+  .label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: var(--muted);
+    margin: 7px 0 3px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .label:first-child { margin-top: 0; }
+
+  /* ── Table ── */
+  table.map {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5px;
+    margin: 4px 0;
+  }
+
+  table.map th {
+    background: var(--light);
+    text-align: left;
+    padding: 3px 6px;
+    font-weight: 700;
+    font-size: 10px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  table.map td {
+    padding: 2.5px 6px;
+    border-bottom: 1px solid #F0F0F0;
+    vertical-align: top;
+  }
+
+  table.map tr:last-child td { border-bottom: none; }
+
+  table.map td code {
+    background: #F0F4F8;
+    color: var(--navy);
+    border-radius: 3px;
+    padding: 0 3px;
+    font-size: 10px;
+  }
+
+  .arr { color: var(--teal); font-weight: 700; margin: 0 3px; }
+
+  /* ── Callout ── */
+  .callout {
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 10.5px;
+    margin: 5px 0;
+    border-left: 3px solid;
+  }
+
+  .callout.warn  { background: #FFF9E6; border-color: var(--gold);  color: #7D6608; }
+  .callout.info  { background: #E8F8F5; border-color: var(--teal);  color: #0E6655; }
+  .callout.error { background: #FDEDEC; border-color: var(--red);   color: #7B241C; }
+
+  .callout strong { font-weight: 800; }
+
+  /* ── Span classes ── */
+  .tag {
+    display: inline-block;
+    border-radius: 3px;
+    padding: 0px 5px;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    vertical-align: middle;
+    margin-left: 3px;
+  }
+
+  .tag-it  { background: #E8F8F5; color: #0E6655; }
+  .tag-en  { background: #EAF2FB; color: #154360; }
+  .tag-api { background: #F9EBEA; color: #7B241C; }
+
+  /* ── Footer ── */
+  .footer {
+    background: var(--navy);
+    color: rgba(255,255,255,.55);
+    font-size: 9.5px;
+    padding: 8px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer strong { color: rgba(255,255,255,.85); }
+
+  /* ────────────────────────────────────────
+     PRINT STYLES
+  ──────────────────────────────────────── */
+  @media print {
+    @page {
+      size: A4;
+      margin: 10mm 10mm 10mm 10mm;
+    }
+
+    body {
+      background: #fff;
+      font-size: 9pt;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      max-width: 100%;
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .header {
+      padding: 8px 14px;
+    }
+
+    .logo { width: 36px; height: 36px; font-size: 14px; }
+    .header-text h1 { font-size: 14px; }
+    .header-text .sub { font-size: 9pt; }
+    .toolbar { padding: 3px 14px; }
+
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 7px;
+      padding: 7px 10px;
+      /* Force page break after 4 sections (2 cols × 2 rows = first A4 page) */
+    }
+
+    .section:nth-child(4) {
+      break-after: page;
+    }
+
+    .code-block { padding: 5px 7px; }
+    pre, code { font-size: 8pt; line-height: 1.4; }
+    .section-body { padding: 6px 8px; }
+    .section-header { padding: 5px 9px; }
+
+    .footer { padding: 5px 14px; font-size: 8pt; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ── Header ── -->
+  <div class="header">
+    <div class="logo">TW</div>
+    <div class="header-text">
+      <h1>Python per Excel — Cheatsheet</h1>
+      <div class="sub">Turin Wealth Advisory &nbsp;·&nbsp; Corso di Economia &nbsp;·&nbsp; Strumenti operativi</div>
+    </div>
+    <div class="header-badges">
+      <span class="badge teal">yfinance</span>
+      <span class="badge gold">pandas</span>
+      <span class="badge red">xlwings</span>
+    </div>
+  </div>
+
+  <!-- ── Toolbar ── -->
+  <div class="toolbar">
+    <span><span class="dot dot-teal"></span> Dati mercato</span>
+    <span><span class="dot dot-gold"></span> Analisi dataframe</span>
+    <span><span class="dot dot-red"></span> Automazione Excel</span>
+    <span>Sempre usare <code style="color:#C3E88D;background:none">set_formula()</code> per le formule italiane</span>
+    <span style="margin-left:auto">v1.0</span>
+  </div>
+
+  <!-- ── 3-column grid ── -->
+  <div class="grid">
+
+    <!-- ══ SECTION 1 — yfinance ══ -->
+    <div class="section">
+      <div class="section-header sh-teal">
+        <span class="num">1</span> yfinance — Scarica Dati
+      </div>
+      <div class="section-body">
+
+        <div class="label">Installazione</div>
+        <div class="code-block"><pre><span class="cm"># Nel terminale</span>
+pip install yfinance</pre></div>
+
+        <div class="label">Download base</div>
+        <div class="code-block"><pre><span class="kw">import</span> yfinance <span class="kw">as</span> <span class="cls">yf</span>
+
+<span class="cm"># Un singolo ticker</span>
+df <span class="op">=</span> yf.download(<span class="str">"TRN.MI"</span>, period<span class="op">=</span><span class="str">"5y"</span>)
+
+<span class="cm"># Piu ticker contemporaneamente</span>
+df <span class="op">=</span> yf.download([<span class="str">"MSFT"</span>, <span class="str">"GOOGL"</span>], period<span class="op">=</span><span class="str">"5y"</span>)
+prezzi <span class="op">=</span> df[<span class="str">"Close"</span>]
+
+<span class="cm"># Con date specifiche</span>
+df <span class="op">=</span> yf.download(<span class="str">"RACE.MI"</span>,
+              start<span class="op">=</span><span class="str">"2020-01-01"</span>,
+              end<span class="op">=</span><span class="str">"2025-12-31"</span>)</pre></div>
+
+        <div class="label">Periodi e Intervalli</div>
+        <table class="map">
+          <tr><th>period=</th><th>Descrizione</th></tr>
+          <tr><td><code>1d</code> <code>5d</code> <code>1mo</code></td><td>Giorno / 5gg / Mese</td></tr>
+          <tr><td><code>3mo</code> <code>6mo</code> <code>1y</code></td><td>Trimestre / Semestre / Anno</td></tr>
+          <tr><td><code>2y</code> <code>5y</code> <code>10y</code></td><td>2 / 5 / 10 anni</td></tr>
+          <tr><td><code>ytd</code> <code>max</code></td><td>Da inizio anno / Tutto</td></tr>
+        </table>
+        <table class="map" style="margin-top:4px">
+          <tr><th>interval=</th><th>Granularità</th></tr>
+          <tr><td><code>1m</code> <code>5m</code> <code>15m</code></td><td>Minuti (max 7gg)</td></tr>
+          <tr><td><code>1h</code> <code>1d</code></td><td>Orario / Giornaliero</td></tr>
+          <tr><td><code>1wk</code> <code>1mo</code></td><td>Settimanale / Mensile</td></tr>
+        </table>
+
+        <div class="label">Info azienda</div>
+        <div class="code-block"><pre>t <span class="op">=</span> yf.Ticker(<span class="str">"MSFT"</span>)
+t.info[<span class="str">"marketCap"</span>]   <span class="cm"># Market cap</span>
+t.info[<span class="str">"trailingPE"</span>]  <span class="cm"># P/E ratio</span>
+t.financials          <span class="cm"># Conto Economico</span>
+t.balance_sheet       <span class="cm"># Stato Patrimoniale</span></pre></div>
+
+      </div>
+    </div>
+
+    <!-- ══ SECTION 2 — pandas ══ -->
+    <div class="section">
+      <div class="section-header sh-gold">
+        <span class="num">2</span> pandas — Analisi Dati
+      </div>
+      <div class="section-body">
+
+        <div class="label">Leggere file</div>
+        <div class="code-block"><pre><span class="kw">import</span> pandas <span class="kw">as</span> <span class="cls">pd</span>
+
+df <span class="op">=</span> pd.read_excel(<span class="str">"file.xlsx"</span>,
+                   sheet_name<span class="op">=</span><span class="str">"Foglio1"</span>)
+df <span class="op">=</span> pd.read_csv(<span class="str">"file.csv"</span>)</pre></div>
+
+        <div class="label">Esplorare</div>
+        <div class="code-block"><pre>df.head()        <span class="cm"># Prime 5 righe</span>
+df.tail(<span class="num">10</span>)     <span class="cm"># Ultime 10 righe</span>
+df.shape         <span class="cm"># (righe, colonne)</span>
+df.columns       <span class="cm"># Nomi colonne</span>
+df.describe()    <span class="cm"># Statistiche base</span>
+df.info()        <span class="cm"># Tipi e valori null</span></pre></div>
+
+        <div class="label">Selezionare</div>
+        <div class="code-block"><pre>df[<span class="str">"colonna"</span>]          <span class="cm"># Series</span>
+df[[<span class="str">"col1"</span>, <span class="str">"col2"</span>]]  <span class="cm"># DataFrame</span>
+df.iloc[<span class="num">0</span>]            <span class="cm"># Per posizione</span>
+df.loc[<span class="str">"2024-01"</span>]     <span class="cm"># Per label</span></pre></div>
+
+        <div class="label">Calcolare</div>
+        <div class="code-block"><pre>df.pct_change()    <span class="cm"># Variazione %</span>
+df.mean()          <span class="cm"># Media</span>
+df.std()           <span class="cm"># Dev. standard</span>
+df.corr()          <span class="cm"># Correlazione</span>
+df.cumsum()        <span class="cm"># Somma cumulata</span>
+(df / df.iloc[<span class="num">0</span>] <span class="op">-</span> <span class="num">1</span>) <span class="op">*</span> <span class="num">100</span>  <span class="cm"># Rend. %</span></pre></div>
+
+        <div class="label">Filtrare e pulire</div>
+        <div class="code-block"><pre>df[df[<span class="str">"col"</span>] <span class="op">></span> <span class="num">0</span>]   <span class="cm"># Condizione</span>
+df.dropna()          <span class="cm"># Rimuovi NaN</span>
+df.fillna(<span class="num">0</span>)         <span class="cm"># Sostituisci NaN</span>
+df.sort_values(<span class="str">"col"</span>, ascending<span class="op">=</span><span class="kw">False</span>)</pre></div>
+
+        <div class="label">Combinare</div>
+        <div class="code-block"><pre>pd.concat([df1, df2], axis<span class="op">=</span><span class="num">1</span>)
+df1.merge(df2, on<span class="op">=</span><span class="str">"key"</span>)  <span class="cm"># Join</span></pre></div>
+
+      </div>
+    </div>
+
+    <!-- ══ SECTION 3 — xlwings Fondamentali ══ -->
+    <div class="section">
+      <div class="section-header sh-red">
+        <span class="num">3</span> xlwings — Fondamentali
+      </div>
+      <div class="section-body">
+
+        <div class="label">Aprire Excel</div>
+        <div class="code-block"><pre><span class="kw">import</span> xlwings <span class="kw">as</span> <span class="cls">xw</span>
+
+app <span class="op">=</span> xw.App(visible<span class="op">=</span><span class="kw">True</span>)
+wb  <span class="op">=</span> app.books.add()          <span class="cm"># Nuovo</span>
+wb  <span class="op">=</span> xw.Book(<span class="str">"file.xlsx"</span>)    <span class="cm"># Esistente</span>
+ws  <span class="op">=</span> wb.sheets[<span class="num">0</span>]            <span class="cm"># Primo</span>
+ws  <span class="op">=</span> wb.sheets[<span class="str">"Nome"</span>]       <span class="cm"># Per nome</span></pre></div>
+
+        <div class="label">Leggere e scrivere</div>
+        <div class="code-block"><pre><span class="cm"># Scrivere</span>
+ws.range(<span class="str">"A1"</span>).value <span class="op">=</span> <span class="str">"Testo"</span>
+ws.range(<span class="str">"A1"</span>).value <span class="op">=</span> <span class="num">42</span>
+ws.range(<span class="str">"A1"</span>).value <span class="op">=</span> [[<span class="num">1</span>,<span class="num">2</span>],[<span class="num">3</span>,<span class="num">4</span>]] <span class="cm"># Matrice</span>
+
+<span class="cm"># Scrivere DataFrame</span>
+ws.range(<span class="str">"A1"</span>).options(pd.DataFrame).value <span class="op">=</span> df
+
+<span class="cm"># Leggere</span>
+val <span class="op">=</span> ws.range(<span class="str">"A1"</span>).value
+df  <span class="op">=</span> ws.range(<span class="str">"A1"</span>).options(
+        pd.DataFrame, expand<span class="op">=</span><span class="str">"table"</span>).value</pre></div>
+
+        <div class="label">Fogli</div>
+        <div class="code-block"><pre>ws <span class="op">=</span> wb.sheets.add(<span class="str">"NomeFoglio"</span>)
+ws.name <span class="op">=</span> <span class="str">"NuovoNome"</span>
+ws.clear()              <span class="cm"># Svuota foglio</span>
+ws.delete()             <span class="cm"># Elimina</span></pre></div>
+
+        <div class="label">Salvare e chiudere</div>
+        <div class="code-block"><pre>wb.save(<span class="str">"output.xlsx"</span>)
+wb.close()
+app.quit()</pre></div>
+
+        <div class="callout info">
+          <strong>Tip:</strong> Usa sempre <code>try/finally</code> con <code>app.quit()</code> per evitare processi Excel orfani.
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ SECTION 4 — xlwings Formattazione ══ -->
+    <div class="section">
+      <div class="section-header sh-purple">
+        <span class="num">4</span> xlwings — Formattazione
+      </div>
+      <div class="section-body">
+
+        <div class="label">Font e colori</div>
+        <div class="code-block"><pre>rng <span class="op">=</span> ws.range(<span class="str">"A1"</span>)
+rng.font.bold  <span class="op">=</span> <span class="kw">True</span>
+rng.font.size  <span class="op">=</span> <span class="num">14</span>
+rng.font.name  <span class="op">=</span> <span class="str">"Calibri"</span>
+rng.font.color <span class="op">=</span> (<span class="num">44</span>, <span class="num">62</span>, <span class="num">80</span>)  <span class="cm"># RGB</span>
+rng.color      <span class="op">=</span> (<span class="num">44</span>, <span class="num">62</span>, <span class="num">80</span>)  <span class="cm"># Sfondo</span></pre></div>
+
+        <div class="label">Formato numeri <span class="tag tag-api">API</span></div>
+        <div class="code-block"><pre><span class="cm"># Excel ITALIANO: virgola=decimale, punto=migliaia</span>
+rng.api.NumberFormatLocal <span class="op">=</span> <span class="str">"#.##0,00 €"</span>
+rng.api.NumberFormatLocal <span class="op">=</span> <span class="str">"0,00%"</span>
+rng.api.NumberFormatLocal <span class="op">=</span> <span class="str">"#.##0"</span>
+rng.api.NumberFormatLocal <span class="op">=</span> <span class="str">"+0,0%;-0,0%"</span>
+rng.api.NumberFormatLocal <span class="op">=</span> <span class="str">"DD/MM/YYYY"</span></pre></div>
+
+        <div class="callout warn">
+          <strong>Attenzione!</strong> Usa <code>NumberFormatLocal</code> (non <code>number_format</code>) su Excel italiano: <code>"0.0%"</code> con il punto dà <code>04%</code> invece di <code>3,5%</code>.
+        </div>
+
+        <div class="label">Colonne e merge</div>
+        <div class="code-block"><pre>ws.autofit()                     <span class="cm"># Autofit tutto</span>
+ws.range(<span class="str">"A:A"</span>).column_width <span class="op">=</span> <span class="num">20</span>
+ws.range(<span class="str">"A1:D1"</span>).merge()       <span class="cm"># Unisci celle</span></pre></div>
+
+        <div class="label">Bordi <span class="tag tag-api">API</span></div>
+        <div class="code-block"><pre>tbl <span class="op">=</span> ws.range(<span class="str">"A1"</span>).expand(<span class="str">"table"</span>)
+<span class="kw">for</span> b <span class="kw">in</span> [<span class="num">7</span>,<span class="num">8</span>,<span class="num">9</span>,<span class="num">10</span>]:  <span class="cm"># Lati bordo</span>
+    brd <span class="op">=</span> tbl.api.Borders(b)
+    brd.LineStyle <span class="op">=</span> <span class="num">1</span>
+    brd.Weight   <span class="op">=</span> <span class="num">2</span></pre></div>
+
+        <div class="label">TextBox <span class="tag tag-api">API</span></div>
+        <div class="code-block"><pre>tb <span class="op">=</span> ws.shapes.add_textbox(
+       left<span class="op">=</span><span class="num">10</span>, top<span class="op">=</span><span class="num">50</span>,
+       width<span class="op">=</span><span class="num">400</span>, height<span class="op">=</span><span class="num">80</span>)
+tb.text <span class="op">=</span> <span class="str">"Consegna esercizio..."</span>
+tb.font.name <span class="op">=</span> <span class="str">"Calibri"</span></pre></div>
+
+      </div>
+    </div>
+
+    <!-- ══ SECTION 5 — Formule Italiane ══ -->
+    <div class="section">
+      <div class="section-header sh-navy">
+        <span class="num">5</span> Formule Italiane
+      </div>
+      <div class="section-body">
+
+        <div class="callout error">
+          <strong>Regola:</strong> Usa SEMPRE <code>set_formula()</code>. L'uso diretto di <code>FormulaLocal</code> aggiunge <code>@</code> davanti alle formule in Excel 365.
+        </div>
+
+        <div class="label">Uso corretto</div>
+        <div class="code-block"><pre><span class="kw">from</span> tw_utils <span class="kw">import</span> set_formula
+
+<span class="cm"># Corretto</span>
+set_formula(ws.range(<span class="str">"A1"</span>), <span class="str">"=SOMMA(B1:B10)"</span>)
+
+<span class="cm"># Sbagliato - aggiunge @ in Excel 365</span>
+ws.range(<span class="str">"A1"</span>).api.FormulaLocal <span class="op">=</span> <span class="str">"=SOMMA(...)"</span></pre></div>
+
+        <div class="label">Separatore: punto e virgola (;)</div>
+        <div class="code-block"><pre>set_formula(ws.range(<span class="str">"A1"</span>),
+    <span class="str">'=SE(B1>0;"Positivo";"Negativo")'</span>)
+set_formula(ws.range(<span class="str">"A1"</span>),
+    <span class="str">"=CERCA.VERT(A1;D1:E10;2;FALSO)"</span>)
+set_formula(ws.range(<span class="str">"A1"</span>),
+    <span class="str">'=CONTA.SE(B1:B10;">0")'</span>)
+set_formula(ws.range(<span class="str">"A1"</span>),
+    <span class="str">"=SE.ERRORE(CERCA.X(A1;D:D;E:E);\"\")"</span>)</pre></div>
+
+        <div class="label">Traduzione EN <span class="arr">→</span> IT</div>
+        <table class="map">
+          <tr><th>Inglese</th><th>Italiano</th></tr>
+          <tr><td><code>IF</code></td><td><code>SE</code></td></tr>
+          <tr><td><code>SUM</code></td><td><code>SOMMA</code></td></tr>
+          <tr><td><code>AVERAGE</code></td><td><code>MEDIA</code></td></tr>
+          <tr><td><code>VLOOKUP</code></td><td><code>CERCA.VERT</code></td></tr>
+          <tr><td><code>XLOOKUP</code></td><td><code>CERCA.X</code></td></tr>
+          <tr><td><code>COUNTIF</code></td><td><code>CONTA.SE</code></td></tr>
+          <tr><td><code>SUMIF</code></td><td><code>SOMMA.SE</code></td></tr>
+          <tr><td><code>INDEX</code></td><td><code>INDICE</code></td></tr>
+          <tr><td><code>MATCH</code></td><td><code>CONFRONTA</code></td></tr>
+          <tr><td><code>IFERROR</code></td><td><code>SE.ERRORE</code></td></tr>
+          <tr><td><code>FORMULATEXT</code></td><td><code>TESTO.FORMULA</code></td></tr>
+          <tr><td><code>ISFORMULA</code></td><td><code>VAL.FORMULA</code></td></tr>
+          <tr><td><code>TRUE / FALSE</code></td><td><code>VERO / FALSO</code></td></tr>
+          <tr><td><code>MIN / MAX</code></td><td><code>MIN / MAX</code> <span style="color:var(--teal)">✓</span></td></tr>
+        </table>
+
+      </div>
+    </div>
+
+    <!-- ══ SECTION 6 — Protezione & Export ══ -->
+    <div class="section">
+      <div class="section-header sh-green">
+        <span class="num">6</span> Protezione &amp; Export
+      </div>
+      <div class="section-body">
+
+        <div class="label">Celle <span class="tag tag-api">API</span></div>
+        <div class="code-block"><pre><span class="cm"># Blocca / sblocca</span>
+ws.range(<span class="str">"A1"</span>).api.Locked <span class="op">=</span> <span class="kw">True</span>
+ws.range(<span class="str">"B1"</span>).api.Locked <span class="op">=</span> <span class="kw">False</span>
+
+<span class="cm"># Nasconde formula nella barra</span>
+ws.range(<span class="str">"A1"</span>).api.FormulaHidden <span class="op">=</span> <span class="kw">True</span>
+
+<span class="cm"># Commento su cella</span>
+ws.range(<span class="str">"A1"</span>).api.AddComment(<span class="str">"Testo"</span>)</pre></div>
+
+        <div class="callout warn">
+          <strong>Ordine obbligatorio:</strong> Prima imposta <code>Locked</code>/<code>FormulaHidden</code>, poi chiama <code>protect_sheet()</code>. Senza protezione attiva, <code>FormulaHidden</code> non ha effetto.
+        </div>
+
+        <div class="label">Foglio</div>
+        <div class="code-block"><pre><span class="kw">from</span> tw_utils <span class="kw">import</span> protect_sheet, hide_sheet
+
+<span class="cm"># Proteggi con password</span>
+protect_sheet(ws, <span class="str">"password"</span>)
+
+<span class="cm"># Permetti formattazione (es. ES03)</span>
+protect_sheet(ws, <span class="str">"password"</span>,
+              allow_formatting<span class="op">=</span><span class="kw">True</span>)
+
+<span class="cm"># Nascondi (very_hidden = non riappare)</span>
+hide_sheet(ws, very_hidden<span class="op">=</span><span class="kw">True</span>)</pre></div>
+
+        <div class="label">Export PDF</div>
+        <div class="code-block"><pre><span class="cm"># Tutto il workbook</span>
+wb.api.ExportAsFixedFormat(<span class="num">0</span>, <span class="str">"report.pdf"</span>)
+
+<span class="cm"># Solo un foglio</span>
+ws.api.ExportAsFixedFormat(<span class="num">0</span>, <span class="str">"foglio.pdf"</span>)</pre></div>
+
+        <div class="label">PageSetup <span class="tag tag-api">API</span></div>
+        <div class="code-block"><pre>ps <span class="op">=</span> ws.api.PageSetup
+ps.Orientation    <span class="op">=</span> <span class="num">2</span>   <span class="cm"># 1=Portrait 2=Landscape</span>
+ps.FitToPagesWide <span class="op">=</span> <span class="num">1</span>   <span class="cm"># Adatta larghezza</span>
+ps.FitToPagesTall <span class="op">=</span> <span class="num">1</span>   <span class="cm"># Adatta altezza</span>
+ps.PaperSize      <span class="op">=</span> <span class="num">9</span>   <span class="cm"># 9 = A4</span>
+ps.LeftMargin     <span class="op">=</span> <span class="num">36</span>  <span class="cm"># Punti (36pt = 1.27cm)</span></pre></div>
+
+        <div class="label">Colori Turin Wealth</div>
+        <table class="map">
+          <tr><th>Nome</th><th>HEX</th><th>RGB</th></tr>
+          <tr><td>Navy</td><td><code>#2C3E50</code></td><td><code>(44,62,80)</code></td></tr>
+          <tr><td>Red</td><td><code>#E74C3C</code></td><td><code>(231,76,60)</code></td></tr>
+          <tr><td>Teal</td><td><code>#1ABC9C</code></td><td><code>(26,188,156)</code></td></tr>
+          <tr><td>Gold</td><td><code>#F39C12</code></td><td><code>(243,156,18)</code></td></tr>
+        </table>
+
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- ── Footer ── -->
+  <div class="footer">
+    <span><strong>Turin Wealth Advisory</strong> — Python per Excel &nbsp;|&nbsp; Cheatsheet v1.0</span>
+    <span>xlwings · pandas · yfinance &nbsp;·&nbsp; Excel IT locale</span>
+    <span>Corso di Economia &nbsp;·&nbsp; 2025/2026</span>
+  </div>
+
+</div><!-- /page -->
+
+</body>
+</html>
