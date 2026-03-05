@@ -42,6 +42,8 @@ def scarica_o_cache(ticker, period='5y'):
     try:
         df = yf.download(ticker, period=period, progress=False)
         if len(df) > 0:
+            if isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.get_level_values(0)
             nome_file = ticker.replace('^', '').replace('.', '_') + '.csv'
             df.to_csv(os.path.join(CACHE_DIR, nome_file))
             return df
@@ -431,6 +433,11 @@ path_dati = os.path.join(
 
 try:
     sim = pd.read_excel(path_dati, sheet_name='QUOTAZIONI_AZIONI', index_col=0)
+    sim.index = pd.to_datetime(sim.index, errors='coerce')
+    sim = sim[sim.index.notna()]
+    for col in sim.columns:
+        sim[col] = pd.to_numeric(sim[col], errors='coerce')
+    sim = sim.dropna(how='all')
     print(f'Dati simulati caricati: {sim.shape}')
     print(f'  Periodo: {sim.index[0]} -> {sim.index[-1]}')
     print(f'  Frequenza: mensile ({len(sim)} osservazioni)')

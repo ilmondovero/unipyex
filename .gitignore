@@ -4,3 +4,10 @@ __pycache__/
 dati_cache/*.csv
 .DS_Store
 Thumbs.db
+
+# Generated output files (created by running scripts)
+report_blocco2.xlsx
+Report_Trimestrale_Bianchi.xlsx
+Report_Bianchi_Completo.pdf
+Report_Solo_Analisi.pdf
+~$*.xlsx

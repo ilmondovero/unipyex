@@ -34,6 +34,8 @@ def scarica_o_cache(ticker, period='5y'):
     try:
         df = yf.download(ticker, period=period, progress=False)
         if len(df) > 0:
+            if isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.get_level_values(0)
             return df
     except Exception:
         pass
@@ -340,7 +342,7 @@ ws_conf.range(f'B2:B{len(nomi_az)+1}').api.NumberFormatLocal = '0,0%'
 ws_conf.autofit()
 
 chart_bar = ws_conf.charts.add(left=220, top=10, width=450, height=300)
-chart_bar.chart_type = 'bar'
+chart_bar.chart_type = 'bar_clustered'
 chart_bar.set_source_data(ws_conf.range(f'A1:B{len(nomi_az)+1}'))
 chart_bar.api[1].HasTitle = True
 chart_bar.api[1].ChartTitle.Text = 'Rendimento Annualizzato - Turin Wealth Portfolio'

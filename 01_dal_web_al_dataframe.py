@@ -51,6 +51,9 @@ def scarica_o_cache(ticker, period='5y'):
     try:
         df = yf.download(ticker, period=period, progress=False, auto_adjust=True)
         if len(df) > 0:
+            # Appiattisci MultiIndex colonne (yfinance v0.2+)
+            if isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.get_level_values(0)
             nome_file = ticker.replace('^', '').replace('.', '_') + '.csv'
             df.to_csv(os.path.join(CACHE_DIR, nome_file))
             return df
@@ -134,6 +137,9 @@ except Exception as e:
 if isinstance(dati_multi.columns, pd.MultiIndex):
     prezzi_close = dati_multi['Close'].copy()
     prezzi_close = prezzi_close[tickers]
+    prezzi_close.columns = nomi
+elif 'prezzi_close' not in dir():
+    prezzi_close = dati_multi
     prezzi_close.columns = nomi
 
 prezzi_close = prezzi_close.dropna(how='all')
@@ -286,7 +292,14 @@ path_dati = os.path.join(
 )
 
 try:
-    dati_simulati = pd.read_excel(path_dati, sheet_name='QUOTAZIONI_AZIONI', index_col=0, parse_dates=True)
+    dati_simulati = pd.read_excel(path_dati, sheet_name='QUOTAZIONI_AZIONI', index_col=0)
+    # Assicura che l'indice sia datetime (gestisce header "Data" residui)
+    dati_simulati.index = pd.to_datetime(dati_simulati.index, errors='coerce')
+    dati_simulati = dati_simulati[dati_simulati.index.notna()]
+    # Converti colonne a numerico (possono contenere header residui)
+    for col in dati_simulati.columns:
+        dati_simulati[col] = pd.to_numeric(dati_simulati[col], errors='coerce')
+    dati_simulati = dati_simulati.dropna(how='all')
     print(f'Dati simulati caricati: {dati_simulati.shape}')
 except FileNotFoundError:
     print('File DATI_Turin_Wealth.xlsx non trovato — genero dati simulati di esempio.')
@@ -297,75 +310,78 @@ except FileNotFoundError:
         prezzi_sim[ticker] = p0 * np.exp(np.cumsum(np.random.normal(0.0003, 0.015, len(date_range))))
     dati_simulati = pd.DataFrame(prezzi_sim, index=date_range)
 
-# Confronto Terna
-col_terna_sim = None
-for col in dati_simulati.columns:
-    if 'TRN' in str(col).upper() or 'TERNA' in str(col).upper():
-        col_terna_sim = col
-        break
-if col_terna_sim is None:
-    col_terna_sim = dati_simulati.columns[0]
+def confronta_serie(nome, serie_reale, serie_sim, colore_reale, colore_sim):
+    """Confronta una serie reale con una simulata, normalizzando a base 100."""
+    sr = serie_reale.dropna()
+    ss = serie_sim.dropna()
 
-terna_reale = prezzi_close['Terna'].dropna()
-terna_sim   = dati_simulati[col_terna_sim].dropna()
+    # Filtra periodo comune
+    data_min = max(sr.index.min(), ss.index.min())
+    data_max = min(sr.index.max(), ss.index.max())
+    sr = sr[(sr.index >= data_min) & (sr.index <= data_max)]
+    ss = ss[(ss.index >= data_min) & (ss.index <= data_max)]
 
-data_min = max(terna_reale.index.min(), terna_sim.index.min())
-data_max = min(terna_reale.index.max(), terna_sim.index.max())
-tr = terna_reale[(terna_reale.index >= data_min) & (terna_reale.index <= data_max)]
-ts = terna_sim[(terna_sim.index >= data_min) & (terna_sim.index <= data_max)]
-tr_norm = tr / tr.iloc[0] * 100
-ts_norm = ts / ts.iloc[0] * 100
+    if len(sr) == 0 or len(ss) == 0:
+        print(f'  Nessun periodo comune per {nome}, salto confronto.')
+        return
 
-fig, axes = plt.subplots(2, 1, figsize=(12, 8))
-axes[0].plot(tr_norm.index, tr_norm.values, color='#2C3E50', linewidth=1.5, label='Terna — Reale')
-axes[0].plot(ts_norm.index, ts_norm.values, color='#E74C3C', linewidth=1.5, label='Terna — Simulato', linestyle='--', alpha=0.7)
-axes[0].set_title('Terna: reale vs simulato (base 100)', fontsize=13, fontweight='bold')
-axes[0].legend()
-axes[0].grid(True, alpha=0.3)
-
-diff = tr_norm - ts_norm
-axes[1].plot(diff.index, diff.values, color='#9B59B6', linewidth=1)
-axes[1].axhline(y=0, color='black', linewidth=0.8, linestyle='--')
-axes[1].set_title('Differenza (Reale - Simulato)', fontsize=13)
-axes[1].grid(True, alpha=0.3)
-plt.tight_layout()
-plt.show()
-
-# Confronto Ferrari
-col_ferrari_sim = None
-for col in dati_simulati.columns:
-    if 'RACE' in str(col).upper() or 'FERRARI' in str(col).upper():
-        col_ferrari_sim = col
-        break
-if col_ferrari_sim is None and len(dati_simulati.columns) > 1:
-    col_ferrari_sim = dati_simulati.columns[1]
-
-if col_ferrari_sim is not None:
-    fr = prezzi_close['Ferrari'].dropna()
-    fs = dati_simulati[col_ferrari_sim].dropna()
-    ds = max(fr.index.min(), fs.index.min())
-    de = min(fr.index.max(), fs.index.max())
-    fr = fr[(fr.index >= ds) & (fr.index <= de)]
-    fs = fs[(fs.index >= ds) & (fs.index <= de)]
-    fr_norm = fr / fr.iloc[0] * 100
-    fs_norm = fs / fs.iloc[0] * 100
+    # Normalizza a base 100
+    sr_norm = sr / sr.iloc[0] * 100
+    ss_norm = ss / ss.iloc[0] * 100
 
     fig, ax = plt.subplots(figsize=(12, 5))
-    ax.plot(fr_norm.index, fr_norm.values, color='#E74C3C', linewidth=2, label='Ferrari — Reale')
-    ax.plot(fs_norm.index, fs_norm.values, color='#F39C12', linewidth=1.5, label='Ferrari — Simulato', linestyle='--', alpha=0.8)
+    ax.plot(sr_norm.index, sr_norm.values, color=colore_reale, linewidth=2, label=f'{nome} — Reale')
+    ax.plot(ss_norm.index, ss_norm.values, color=colore_sim, linewidth=1.5,
+            label=f'{nome} — Simulato', linestyle='--', alpha=0.8)
     ax.axhline(y=100, color='gray', linestyle=':', linewidth=1)
-    ax.set_title('Ferrari NV: reale vs simulato (base 100)', fontsize=13, fontweight='bold')
+    ax.set_title(f'{nome}: reale vs simulato (base 100)', fontsize=13, fontweight='bold')
     ax.legend()
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.show()
 
-    date_comuni = fr_norm.index.intersection(fs_norm.index)
-    if len(date_comuni) > 10:
-        corr = fr_norm[date_comuni].corr(fs_norm[date_comuni])
-        mae = np.abs(fr_norm[date_comuni] - fs_norm[date_comuni]).mean()
-        print(f'Correlazione Ferrari reale vs simulato: {corr:.4f}')
-        print(f'MAE: {mae:.2f} punti (base 100)')
+    # Statistiche: confronta su date in comune (reale = giornaliero, sim = mensile)
+    date_comuni = sr_norm.index.intersection(ss_norm.index)
+    if len(date_comuni) > 5:
+        corr = sr_norm[date_comuni].corr(ss_norm[date_comuni])
+        mae = np.abs(sr_norm[date_comuni] - ss_norm[date_comuni]).mean()
+        print(f'  Correlazione {nome}: {corr:.4f}')
+        print(f'  MAE: {mae:.2f} punti (base 100)')
+    else:
+        # Frequenze diverse (mensile vs giornaliero): resample reale a mensile
+        sr_mensile = sr.resample('ME').last()
+        ss_mensile = ss.resample('ME').last()
+        date_m = sr_mensile.index.intersection(ss_mensile.index)
+        if len(date_m) > 3:
+            sr_m = sr_mensile[date_m] / sr_mensile[date_m].iloc[0] * 100
+            ss_m = ss_mensile[date_m] / ss_mensile[date_m].iloc[0] * 100
+            corr = sr_m.corr(ss_m)
+            mae = np.abs(sr_m - ss_m).mean()
+            print(f'  Correlazione {nome} (mensile): {corr:.4f}')
+            print(f'  MAE: {mae:.2f} punti (base 100)')
+
+
+# Trova colonne simulati e confronta
+def trova_colonna_sim(dati, keywords):
+    for col in dati.columns:
+        if any(kw in str(col).upper() for kw in keywords):
+            return col
+    return None
+
+col_terna_sim = trova_colonna_sim(dati_simulati, ['TRN', 'TERNA'])
+if col_terna_sim is None:
+    col_terna_sim = dati_simulati.columns[0]
+
+print(f'\nConfronto Terna ({col_terna_sim}):')
+confronta_serie('Terna', prezzi_close['Terna'], dati_simulati[col_terna_sim], '#2C3E50', '#E74C3C')
+
+col_ferrari_sim = trova_colonna_sim(dati_simulati, ['RACE', 'FERRARI'])
+if col_ferrari_sim is None and len(dati_simulati.columns) > 1:
+    col_ferrari_sim = dati_simulati.columns[1]
+
+if col_ferrari_sim is not None:
+    print(f'\nConfronto Ferrari ({col_ferrari_sim}):')
+    confronta_serie('Ferrari', prezzi_close['Ferrari'], dati_simulati[col_ferrari_sim], '#E74C3C', '#F39C12')
 
 
 # ============================================================
