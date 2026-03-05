@@ -11,7 +11,7 @@ Materiale didattico per la lezione su Python applicato a Excel, parte del corso 
 - **Python 3.10+** installato
 - **Excel** installato (necessario per xlwings)
 - Conoscenza base di Python (if/for/funzioni)
-- Aver completato almeno i Moduli A e B del corso Excel
+- Aver completato almeno i Moduli A, B, C, D del corso Excel
 
 ## Setup rapido
 
